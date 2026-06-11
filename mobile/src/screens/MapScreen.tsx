@@ -10,7 +10,7 @@ import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, colors } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { getSavedLocation, SavedLocation } from "../utils/savedLocation";
-import { IncidentMarker, markerAnchor } from "../components/IncidentMarker";
+import { IncidentMarker } from "../components/IncidentMarker";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
 import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
@@ -24,12 +24,6 @@ const EDMONTON_REGION: Region = {
   longitudeDelta: 0.2,
 };
 
-// Precomputed once - passing a freshly-created object as `anchor` on every
-// render makes react-native-maps re-create the native marker, which can
-// make pins flicker or briefly disappear.
-const DEFAULT_ANCHOR = markerAnchor(32);
-const CRIME_ANCHOR = markerAnchor(28);
-
 export function MapScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
@@ -39,11 +33,6 @@ export function MapScreen() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
   const mapRef = useRef<MapView>(null);
-  const prevSelectedIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    prevSelectedIdRef.current = selectedIncidentId;
-  }, [selectedIncidentId]);
 
   useEffect(() => {
     fetchIncidents()
@@ -89,6 +78,8 @@ export function MapScreen() {
     (incident) => incident.lat !== null && incident.lng !== null
   );
 
+  const selectedIncident = visibleIncidents.find((incident) => incident.id === selectedIncidentId);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -106,22 +97,29 @@ export function MapScreen() {
         {visibleIncidents.map((incident) => {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
-          const isSelected = incident.id === selectedIncidentId;
-          const wasSelected = incident.id === prevSelectedIdRef.current;
-          const size = isCrime ? 28 : 32;
           return (
             <Marker
               key={`${incident.source ?? "city"}-${incident.id}`}
               coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
               onPress={() => setSelectedIncidentId(incident.id)}
-              anchor={isCrime ? CRIME_ANCHOR : DEFAULT_ANCHOR}
-              zIndex={isSelected ? 5 : isCrime ? 2 : 1}
-              tracksViewChanges={isSelected || wasSelected}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={isCrime ? 2 : 1}
             >
-              <IncidentMarker category={category} color={categoryColors[category]} size={size} selected={isSelected} />
+              <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
             </Marker>
           );
         })}
+
+        {selectedIncident && (
+          <Circle
+            center={{ latitude: selectedIncident.lat as number, longitude: selectedIncident.lng as number }}
+            radius={40}
+            strokeColor={categoryColors[categorizeIncident(selectedIncident.type, selectedIncident.source)]}
+            strokeWidth={3}
+            fillColor="rgba(0,0,0,0)"
+            zIndex={10}
+          />
+        )}
 
         {userLocation && (
           <Marker
