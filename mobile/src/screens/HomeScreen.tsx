@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { AppHeader } from "../components/AppHeader";
@@ -10,7 +10,7 @@ import { QuickActionCard } from "../components/QuickActionCard";
 import { StatCard } from "../components/StatCard";
 import { fetchAirQuality, fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Incident } from "../types";
-import { distanceKm, GeocodeResult } from "../utils/geo";
+import { distanceKm, GeocodeResult, reverseGeocode } from "../utils/geo";
 import { DEFAULT_RADIUS_KM, getSavedLocation, setSavedLocation, SavedLocation } from "../utils/savedLocation";
 import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
@@ -22,6 +22,8 @@ export function HomeScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crime, setCrime] = useState<Incident[]>([]);
   const [aqhi, setAqhi] = useState<number | null>(null);
+  const [draftCenter, setDraftCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [savingLocation, setSavingLocation] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,6 +60,20 @@ export function HomeScreen() {
     await setSavedLocation(next);
   };
 
+  const handleUseDraftCenter = async () => {
+    if (!draftCenter) return;
+    setSavingLocation(true);
+    try {
+      const label = await reverseGeocode(draftCenter.lat, draftCenter.lng).catch(() => "Custom location");
+      const next: SavedLocation = { label, lat: draftCenter.lat, lng: draftCenter.lng, radiusKm };
+      setLocation(next);
+      await setSavedLocation(next);
+      setDraftCenter(null);
+    } finally {
+      setSavingLocation(false);
+    }
+  };
+
   const handleRadiusChange = async (value: number) => {
     const base: SavedLocation = location ?? {
       label: "Edmonton, AB",
@@ -86,9 +102,23 @@ export function HomeScreen() {
           </View>
         )}
 
+        <Text style={styles.hint}>Drag the map to fine-tune the centre of your alert area.</Text>
         <View style={styles.mapPreview}>
-          <RadiusMapPreview center={center} radiusKm={radiusKm} />
+          <RadiusMapPreview center={center} radiusKm={radiusKm} interactive onCenterChange={setDraftCenter} />
         </View>
+
+        {draftCenter && distanceKm(center, draftCenter) > 0.05 && (
+          <Pressable style={styles.useLocationButton} onPress={handleUseDraftCenter} disabled={savingLocation}>
+            {savingLocation ? (
+              <ActivityIndicator size="small" color={colors.text} />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={18} color={colors.text} style={styles.useLocationIcon} />
+                <Text style={styles.useLocationLabel}>Use this location</Text>
+              </>
+            )}
+          </Pressable>
+        )}
 
         <RadiusSlider value={radiusKm} onChange={handleRadiusChange} />
 
@@ -153,8 +183,30 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body.fontSize,
   },
+  hint: {
+    color: colors.textFaint,
+    fontSize: typography.caption.fontSize,
+    marginTop: spacing.sm,
+  },
   mapPreview: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
+  },
+  useLocationButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.brandEnd,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  useLocationIcon: {
+    marginRight: spacing.xs,
+  },
+  useLocationLabel: {
+    color: colors.text,
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
   },
   statsRow: {
     flexDirection: "row",

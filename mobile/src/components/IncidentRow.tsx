@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
@@ -7,6 +7,7 @@ import { categoryColors, colors, radius, spacing, typography } from "../theme";
 
 interface IncidentRowProps {
   incident: Incident;
+  onPress?: () => void;
 }
 
 const CATEGORY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
@@ -16,12 +17,12 @@ const CATEGORY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   other: "ellipse-outline",
 };
 
-export function IncidentRow({ incident }: IncidentRowProps) {
+export function IncidentRow({ incident, onPress }: IncidentRowProps) {
   const category = categorizeIncident(incident.type, incident.source);
   const accent = categoryColors[category];
 
   return (
-    <View style={styles.row}>
+    <Pressable style={styles.row} onPress={onPress} disabled={!onPress}>
       <View style={[styles.iconWrap, { backgroundColor: `${accent}26` }]}>
         <Ionicons name={CATEGORY_ICONS[category]} size={16} color={accent} />
       </View>
@@ -40,7 +41,7 @@ export function IncidentRow({ incident }: IncidentRowProps) {
           timeZone: "America/Edmonton",
         })}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

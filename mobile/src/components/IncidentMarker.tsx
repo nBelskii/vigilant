@@ -9,7 +9,7 @@ interface IncidentMarkerProps {
   size?: number;
 }
 
-const CATEGORY_ICONS: Record<IncidentCategory, keyof typeof Ionicons.glyphMap> = {
+export const CATEGORY_ICONS: Record<IncidentCategory, keyof typeof Ionicons.glyphMap> = {
   crime: "shield",
   fire: "flame",
   traffic: "car-sport",

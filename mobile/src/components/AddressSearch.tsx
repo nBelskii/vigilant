@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
@@ -14,13 +14,22 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const search = async () => {
-    if (!query.trim()) return;
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const search = async (text: string) => {
+    if (!text.trim()) {
+      setResults([]);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const data = await geocodeAddress(query);
+      const data = await geocodeAddress(text);
       setResults(data);
+      if (data.length === 0) {
+        setError("No matches found.");
+      }
     } catch (err) {
       console.error("Geocode error:", err);
       setError("Couldn't search that address. Try again.");
@@ -28,6 +37,18 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
       setLoading(false);
     }
   };
+
+  const handleChangeText = (text: string) => {
+    setQuery(text);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => search(text), 400);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   return (
     <View>
@@ -38,9 +59,10 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
           placeholder="Search an address or neighbourhood"
           placeholderTextColor={colors.textFaint}
           value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={search}
+          onChangeText={handleChangeText}
+          onSubmitEditing={() => search(query)}
           returnKeyType="search"
+          autoCorrect={false}
         />
         {loading && <ActivityIndicator size="small" color={colors.brandEnd} />}
       </View>
@@ -59,6 +81,7 @@ export function AddressSearch({ onSelect }: AddressSearchProps) {
                 onPress={() => {
                   onSelect(item);
                   setResults([]);
+                  setError(null);
                   setQuery(item.label);
                 }}
               >

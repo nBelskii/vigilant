@@ -30,7 +30,7 @@ export function MapScreen() {
   const [showCrime, setShowCrime] = useState(true);
   const [mapSkin, setMapSkin] = useState<MapSkin>(MAP_SKINS[0]);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
   const mapRef = useRef<MapView>(null);
 
@@ -74,7 +74,9 @@ export function MapScreen() {
     }, [])
   );
 
-  const visibleIncidents = showCrime ? [...incidents, ...crimeIncidents] : incidents;
+  const visibleIncidents = (showCrime ? [...incidents, ...crimeIncidents] : incidents).filter(
+    (incident) => incident.lat !== null && incident.lng !== null
+  );
 
   return (
     <View style={styles.container}>
@@ -90,23 +92,21 @@ export function MapScreen() {
         showsCompass={false}
         toolbarEnabled={false}
       >
-        {visibleIncidents
-          .filter((incident) => incident.lat !== null && incident.lng !== null)
-          .map((incident) => {
-            const category = categorizeIncident(incident.type, incident.source);
-            const isCrime = incident.source === "police";
-            return (
-              <Marker
-                key={`${incident.source ?? "city"}-${incident.id}`}
-                coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
-                onPress={() => setSelectedIncident(incident)}
-                anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={isCrime ? 2 : 1}
-              >
-                <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
-              </Marker>
-            );
-          })}
+        {visibleIncidents.map((incident) => {
+          const category = categorizeIncident(incident.type, incident.source);
+          const isCrime = incident.source === "police";
+          return (
+            <Marker
+              key={`${incident.source ?? "city"}-${incident.id}`}
+              coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
+              onPress={() => setSelectedIncidentId(incident.id)}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={isCrime ? 2 : 1}
+            >
+              <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
+            </Marker>
+          );
+        })}
 
         {userLocation && (
           <Marker
@@ -150,7 +150,12 @@ export function MapScreen() {
         </View>
       </View>
 
-      <IncidentDetailSheet incident={selectedIncident} onClose={() => setSelectedIncident(null)} />
+      <IncidentDetailSheet
+        incidents={visibleIncidents}
+        selectedId={selectedIncidentId}
+        onSelectId={setSelectedIncidentId}
+        center={watchedLocation ? { lat: watchedLocation.lat, lng: watchedLocation.lng } : undefined}
+      />
     </View>
   );
 }

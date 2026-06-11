@@ -30,6 +30,21 @@ export async function geocodeAddress(query: string): Promise<GeocodeResult[]> {
   }));
 }
 
+export async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16`;
+
+  const res = await fetch(url, {
+    headers: { "User-Agent": "NearbyApp/1.0 (Edmonton safety alerts)" },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Reverse geocoding failed with status ${res.status}`);
+  }
+
+  const data = (await res.json()) as { display_name?: string };
+  return data.display_name ?? "Custom location";
+}
+
 export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const R = 6371;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
