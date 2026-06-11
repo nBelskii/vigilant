@@ -9,10 +9,12 @@ export const colors = {
   danger: "#ff4757",
   warning: "#ffa502",
   success: "#2ed573",
+  brandStart: "#ff9500",
+  brandEnd: "#ff2d55",
 } as const;
 
 export const categoryColors = {
-  crime: colors.danger,
+  crime: colors.brandEnd,
   fire: colors.warning,
   traffic: colors.accent,
   other: colors.textMuted,

@@ -5,6 +5,7 @@ export interface Incident {
   lat: number | null;
   lng: number | null;
   timestamp: string;
+  source?: "city" | "police";
 }
 
 export interface Alert {

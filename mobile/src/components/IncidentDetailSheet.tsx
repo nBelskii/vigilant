@@ -18,7 +18,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export function IncidentDetailSheet({ incident, onClose }: IncidentDetailSheetProps) {
   const visible = incident !== null;
-  const category = incident ? categorizeIncident(incident.type) : "other";
+  const category = incident ? categorizeIncident(incident.type, incident.source) : "other";
   const accentColor = categoryColors[category];
 
   return (
@@ -40,6 +40,9 @@ export function IncidentDetailSheet({ incident, onClose }: IncidentDetailSheetPr
                   timeZone: "America/Edmonton",
                 })}
               </Text>
+              {incident.source === "police" && (
+                <Text style={styles.source}>Source: Edmonton Police Service</Text>
+              )}
             </>
           )}
         </Pressable>
@@ -97,5 +100,11 @@ const styles = StyleSheet.create({
   timestamp: {
     color: colors.textMuted,
     fontSize: typography.caption.fontSize,
+  },
+  source: {
+    color: colors.textMuted,
+    fontSize: typography.caption.fontSize,
+    marginTop: spacing.xs,
+    fontStyle: "italic",
   },
 });

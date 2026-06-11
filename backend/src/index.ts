@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import incidentsRouter from "./routes/incidents";
+import crimeRouter from "./routes/crime";
 import alertsRouter from "./routes/alerts";
 import airqualityRouter from "./routes/airquality";
 
@@ -14,13 +15,14 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (_req, res) => {
-  res.json({ name: "Vigilant API", status: "ok" });
+  res.json({ name: "Nearby API", status: "ok" });
 });
 
 app.use("/api/incidents", incidentsRouter);
+app.use("/api/crime", crimeRouter);
 app.use("/api/alerts", alertsRouter);
 app.use("/api/airquality", airqualityRouter);
 
 app.listen(PORT, () => {
-  console.log(`Vigilant backend listening on port ${PORT}`);
+  console.log(`Nearby backend listening on port ${PORT}`);
 });

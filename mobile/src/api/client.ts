@@ -17,6 +17,10 @@ export function fetchIncidents(): Promise<Incident[]> {
   return getJson<Incident[]>("/api/incidents");
 }
 
+export function fetchCrimeIncidents(): Promise<Incident[]> {
+  return getJson<Incident[]>("/api/crime");
+}
+
 export function fetchAlerts(): Promise<Alert[]> {
   return getJson<Alert[]>("/api/alerts");
 }

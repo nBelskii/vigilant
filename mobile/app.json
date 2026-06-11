@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Vigilant",
-    "slug": "vigilant",
+    "name": "Nearby",
+    "slug": "nearby",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "ca.vigilant.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Vigilant uses your location to show nearby safety alerts and incidents on the map."
+        "NSLocationWhenInUseUsageDescription": "Nearby uses your location to show nearby safety alerts and incidents on the map."
       }
     },
     "android": {
@@ -35,7 +35,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Vigilant uses your location to show nearby safety alerts and incidents on the map."
+          "locationWhenInUsePermission": "Nearby uses your location to show nearby safety alerts and incidents on the map."
         }
       ]
     ]
