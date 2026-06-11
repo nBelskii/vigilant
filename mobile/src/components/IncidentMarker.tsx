@@ -1,19 +1,28 @@
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
-import { colors } from "../theme";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, IncidentCategory } from "../theme";
 
-interface MarkerDotProps {
+interface IncidentMarkerProps {
+  category: IncidentCategory;
   color: string;
   size?: number;
 }
 
-export function MarkerDot({ color, size = 22 }: MarkerDotProps) {
-  const inner = Math.max(6, Math.round(size * 0.36));
+const CATEGORY_ICONS: Record<IncidentCategory, keyof typeof Ionicons.glyphMap> = {
+  crime: "shield",
+  fire: "flame",
+  traffic: "car-sport",
+  other: "alert-circle",
+};
+
+export function IncidentMarker({ category, color, size = 30 }: IncidentMarkerProps) {
+  const iconSize = Math.round(size * 0.55);
 
   return (
     <View
       style={[
-        styles.dot,
+        styles.wrap,
         {
           width: size,
           height: size,
@@ -23,13 +32,13 @@ export function MarkerDot({ color, size = 22 }: MarkerDotProps) {
         },
       ]}
     >
-      <View style={[styles.inner, { width: inner, height: inner, borderRadius: inner / 2 }]} />
+      <Ionicons name={CATEGORY_ICONS[category]} size={iconSize} color={colors.text} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  dot: {
+  wrap: {
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
@@ -44,8 +53,5 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
-  },
-  inner: {
-    backgroundColor: colors.text,
   },
 });

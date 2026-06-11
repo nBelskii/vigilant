@@ -10,7 +10,7 @@ import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, colors } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { getSavedLocation, SavedLocation } from "../utils/savedLocation";
-import { MarkerDot } from "../components/MarkerDot";
+import { IncidentMarker } from "../components/IncidentMarker";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
 import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
@@ -103,7 +103,7 @@ export function MapScreen() {
                 anchor={{ x: 0.5, y: 0.5 }}
                 zIndex={isCrime ? 2 : 1}
               >
-                <MarkerDot color={categoryColors[category]} size={isCrime ? 18 : 22} />
+                <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
               </Marker>
             );
           })}

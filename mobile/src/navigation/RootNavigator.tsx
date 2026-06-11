@@ -8,6 +8,7 @@ import { DigestScreen } from "../screens/DigestScreen";
 import { AlertsScreen } from "../screens/AlertsScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { SubscriptionScreen } from "../screens/SubscriptionScreen";
 import { CustomTabBar } from "./CustomTabBar";
 import { colors } from "../theme";
 
@@ -31,6 +32,7 @@ function ProfileStackNavigator() {
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
       <ProfileStack.Screen name="ProfileHome" component={ProfileScreen} />
       <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+      <ProfileStack.Screen name="Subscription" component={SubscriptionScreen} />
     </ProfileStack.Navigator>
   );
 }

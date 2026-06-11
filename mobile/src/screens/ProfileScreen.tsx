@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -24,6 +24,19 @@ export function ProfileScreen() {
         <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.signInButton}>
           <Text style={styles.signInLabel}>Sign In</Text>
         </LinearGradient>
+
+        <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCardWrap}>
+          <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.proCard}>
+            <View style={styles.proIconWrap}>
+              <Ionicons name="shield-checkmark" size={22} color={colors.text} />
+            </View>
+            <View style={styles.proTextWrap}>
+              <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
+              <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.text} />
+          </LinearGradient>
+        </Pressable>
 
         <Text style={styles.sectionLabel}>Preferences</Text>
         <View style={styles.section}>
@@ -90,6 +103,38 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
+  },
+  proCardWrap: {
+    width: "92%",
+    marginBottom: spacing.lg,
+  },
+  proCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: radius.lg,
+    padding: spacing.md,
+  },
+  proIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
+  },
+  proTextWrap: {
+    flex: 1,
+  },
+  proTitle: {
+    color: colors.text,
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
+  },
+  proSubtitle: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: typography.caption.fontSize,
+    marginTop: 2,
   },
   sectionLabel: {
     alignSelf: "flex-start",

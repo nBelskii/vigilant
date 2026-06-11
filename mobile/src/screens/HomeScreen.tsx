@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { AppHeader } from "../components/AppHeader";
 import { AddressSearch } from "../components/AddressSearch";
 import { RadiusSlider } from "../components/RadiusSlider";
+import { RadiusMapPreview } from "../components/RadiusMapPreview";
 import { QuickActionCard } from "../components/QuickActionCard";
 import { StatCard } from "../components/StatCard";
 import { fetchAirQuality, fetchCrimeIncidents, fetchIncidents } from "../api/client";
@@ -85,6 +86,10 @@ export function HomeScreen() {
           </View>
         )}
 
+        <View style={styles.mapPreview}>
+          <RadiusMapPreview center={center} radiusKm={radiusKm} />
+        </View>
+
         <RadiusSlider value={radiusKm} onChange={handleRadiusChange} />
 
         <Text style={styles.sectionLabel}>Right now</Text>
@@ -147,6 +152,9 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.text,
     fontSize: typography.body.fontSize,
+  },
+  mapPreview: {
+    marginTop: spacing.md,
   },
   statsRow: {
     flexDirection: "row",
