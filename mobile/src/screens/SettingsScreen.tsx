@@ -1,16 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SettingsRow } from "../components/SettingsRow";
+import { getNotificationPrefs, setNotificationPrefs } from "../utils/notificationPrefs";
+import { requestNotificationPermissions } from "../utils/notifications";
 import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
 export function SettingsScreen() {
   const navigation = useNavigation<any>();
   const [pushEnabled, setPushEnabled] = useState(true);
   const [crimeAlerts, setCrimeAlerts] = useState(true);
-  const [trafficAlerts, setTrafficAlerts] = useState(false);
+  const [trafficAlerts, setTrafficAlerts] = useState(true);
   const [metric, setMetric] = useState(true);
+
+  useEffect(() => {
+    getNotificationPrefs().then((prefs) => {
+      setPushEnabled(prefs.pushEnabled);
+      setCrimeAlerts(prefs.crimeAlerts);
+      setTrafficAlerts(prefs.trafficAlerts);
+    });
+  }, []);
+
+  const updatePrefs = (next: { pushEnabled: boolean; crimeAlerts: boolean; trafficAlerts: boolean }) => {
+    setNotificationPrefs(next);
+  };
+
+  const handlePushToggle = async (next: boolean) => {
+    if (next) {
+      const granted = await requestNotificationPermissions();
+      if (!granted) {
+        setPushEnabled(false);
+        updatePrefs({ pushEnabled: false, crimeAlerts, trafficAlerts });
+        return;
+      }
+    }
+    setPushEnabled(next);
+    updatePrefs({ pushEnabled: next, crimeAlerts, trafficAlerts });
+  };
+
+  const handleCrimeToggle = (next: boolean) => {
+    setCrimeAlerts(next);
+    updatePrefs({ pushEnabled, crimeAlerts: next, trafficAlerts });
+  };
+
+  const handleTrafficToggle = (next: boolean) => {
+    setTrafficAlerts(next);
+    updatePrefs({ pushEnabled, crimeAlerts, trafficAlerts: next });
+  };
 
   return (
     <View style={styles.container}>
@@ -28,23 +65,23 @@ export function SettingsScreen() {
           <SettingsRow
             icon="notifications-outline"
             label="Push Notifications"
-            description="Get notified about new alerts"
+            description="Get notified about new alerts in your radius"
             value={pushEnabled}
-            onValueChange={setPushEnabled}
+            onValueChange={handlePushToggle}
           />
           <SettingsRow
             icon="alert-circle-outline"
             label="Crime Alerts"
             description="Police-reported incidents nearby"
             value={crimeAlerts}
-            onValueChange={setCrimeAlerts}
+            onValueChange={handleCrimeToggle}
           />
           <SettingsRow
             icon="car-outline"
             label="Traffic Alerts"
             description="Road closures & collisions"
             value={trafficAlerts}
-            onValueChange={setTrafficAlerts}
+            onValueChange={handleTrafficToggle}
           />
         </View>
 

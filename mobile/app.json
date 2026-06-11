@@ -37,6 +37,13 @@
         {
           "locationWhenInUsePermission": "Nearby uses your location to show nearby safety alerts and incidents on the map."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff"
+        }
       ]
     ]
   }
