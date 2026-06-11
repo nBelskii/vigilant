@@ -1,5 +1,5 @@
-import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { Animated, Pressable, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
@@ -14,16 +14,49 @@ const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused
   Profile: { focused: "person-circle", unfocused: "person-circle-outline" },
 };
 
-export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+interface TabIconProps {
+  name: string;
+  isFocused: boolean;
+  onPress: () => void;
+}
+
+function TabIcon({ name, isFocused, onPress }: TabIconProps) {
+  const icon = ICONS[name];
+  const progress = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(progress, {
+      toValue: isFocused ? 1 : 0,
+      friction: 6,
+      tension: 80,
+      useNativeDriver: true,
+    }).start();
+  }, [isFocused, progress]);
+
+  const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
+
+  return (
+    <Pressable onPress={onPress} style={styles.item} hitSlop={6}>
+      <View style={styles.pillSlot}>
+        <Animated.View style={[styles.pillBase, { opacity: progress, transform: [{ scale }] }]} />
+        <Ionicons
+          name={isFocused ? icon.focused : icon.unfocused}
+          size={22}
+          color={isFocused ? "#ffffff" : colors.textFaint}
+        />
+      </View>
+    </Pressable>
+  );
+}
+
+export function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.wrapper, { bottom: insets.bottom + 12 }]} pointerEvents="box-none">
       <BlurView intensity={60} tint="light" style={styles.bar}>
         {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const icon = ICONS[route.name];
 
           const onPress = () => {
             const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
@@ -32,19 +65,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             }
           };
 
-          return (
-            <Pressable key={route.key} onPress={onPress} style={styles.item} hitSlop={6}>
-              {isFocused ? (
-                <View style={styles.activePill}>
-                  <Ionicons name={icon.focused} size={22} color="#ffffff" />
-                </View>
-              ) : (
-                <View style={styles.inactivePill}>
-                  <Ionicons name={icon.unfocused} size={22} color={colors.textFaint} />
-                </View>
-              )}
-            </Pressable>
-          );
+          return <TabIcon key={route.key} name={route.name} isFocused={isFocused} onPress={onPress} />;
         })}
       </BlurView>
     </View>
@@ -75,19 +96,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  activePill: {
+  pillSlot: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillBase: {
+    position: "absolute",
     width: 44,
     height: 44,
     borderRadius: radius.lg,
     backgroundColor: colors.brandEnd,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  inactivePill: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.lg,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

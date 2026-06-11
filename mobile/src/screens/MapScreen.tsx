@@ -11,6 +11,7 @@ import { categoryColors, colors } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { getSavedLocation, SavedLocation } from "../utils/savedLocation";
 import { IncidentMarker } from "../components/IncidentMarker";
+import { SelectedPinIndicator } from "../components/SelectedPinIndicator";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
 import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
@@ -95,16 +96,28 @@ export function MapScreen() {
         {visibleIncidents.map((incident) => {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
+          const isSelected = incident.id === selectedIncidentId;
           return (
-            <Marker
-              key={`${incident.source ?? "city"}-${incident.id}`}
-              coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
-              onPress={() => setSelectedIncidentId(incident.id)}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={isCrime ? 2 : 1}
-            >
-              <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
-            </Marker>
+            <React.Fragment key={`${incident.source ?? "city"}-${incident.id}`}>
+              <Marker
+                coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
+                onPress={() => setSelectedIncidentId(incident.id)}
+                anchor={{ x: 0.5, y: 0.5 }}
+                zIndex={isSelected ? 5 : isCrime ? 2 : 1}
+              >
+                <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
+              </Marker>
+              {isSelected && (
+                <Marker
+                  coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
+                  anchor={{ x: 0.5, y: 1.6 }}
+                  zIndex={6}
+                  tracksViewChanges
+                >
+                  <SelectedPinIndicator color={categoryColors[category]} />
+                </Marker>
+              )}
+            </React.Fragment>
           );
         })}
 

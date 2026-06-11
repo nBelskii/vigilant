@@ -7,19 +7,14 @@ import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 interface PlanFeature {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
-  free: boolean;
-  pro: boolean;
 }
 
 const FEATURES: PlanFeature[] = [
-  { icon: "location", label: "1 watched area", free: true, pro: true },
-  { icon: "infinite", label: "Unlimited watched areas", free: false, pro: true },
-  { icon: "shield-checkmark", label: "Police incident layer", free: true, pro: true },
-  { icon: "notifications", label: "Real-time push alerts", free: false, pro: true },
-  { icon: "map", label: "All map skins", free: false, pro: true },
-  { icon: "calendar", label: "Weekly safety digest", free: true, pro: true },
-  { icon: "stats-chart", label: "Crime trend insights", free: false, pro: true },
-  { icon: "ban", label: "No ads", free: false, pro: true },
+  { icon: "infinite", label: "Unlimited watched areas" },
+  { icon: "notifications", label: "Real-time push alerts" },
+  { icon: "map", label: "All map skins" },
+  { icon: "stats-chart", label: "Crime trend insights" },
+  { icon: "ban", label: "No ads" },
 ];
 
 type PlanId = "monthly" | "yearly";
@@ -39,54 +34,52 @@ export function SubscriptionScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <View style={styles.heroIconWrap}>
-            <Ionicons name="shield-checkmark" size={28} color={colors.brandEnd} />
-          </View>
-          <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
-          <Text style={styles.heroSubtitle}>Unlock unlimited watched areas, instant push alerts and more.</Text>
+        <View style={styles.heroIconWrap}>
+          <Ionicons name="shield-checkmark" size={32} color={colors.brandEnd} />
         </View>
+        <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
+        <Text style={styles.heroSubtitle}>Unlimited areas, instant alerts, and more.</Text>
 
         <View style={styles.plans}>
-          <Pressable
-            style={[styles.planCard, selected === "monthly" && styles.planCardActive]}
-            onPress={() => setSelected("monthly")}
-          >
-            <Text style={styles.planLabel}>Monthly</Text>
-            <Text style={styles.planPrice}>$6.99</Text>
-            <Text style={styles.planPeriod}>per month</Text>
-          </Pressable>
           <Pressable
             style={[styles.planCard, selected === "yearly" && styles.planCardActive]}
             onPress={() => setSelected("yearly")}
           >
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>SAVE $34/YR</Text>
+            <Ionicons
+              name={selected === "yearly" ? "radio-button-on" : "radio-button-off"}
+              size={22}
+              color={selected === "yearly" ? colors.brandEnd : colors.textFaint}
+            />
+            <View style={styles.planTextWrap}>
+              <Text style={styles.planLabel}>Annual</Text>
+              <Text style={styles.planPeriod}>$49.99 / year</Text>
             </View>
-            <Text style={styles.planLabel}>Yearly</Text>
-            <Text style={styles.planPrice}>$49.99</Text>
-            <Text style={styles.planPeriod}>per year</Text>
+            <View style={styles.savingsBadge}>
+              <Text style={styles.savingsBadgeText}>Save $34/yr</Text>
+            </View>
+          </Pressable>
+
+          <Pressable
+            style={[styles.planCard, selected === "monthly" && styles.planCardActive]}
+            onPress={() => setSelected("monthly")}
+          >
+            <Ionicons
+              name={selected === "monthly" ? "radio-button-on" : "radio-button-off"}
+              size={22}
+              color={selected === "monthly" ? colors.brandEnd : colors.textFaint}
+            />
+            <View style={styles.planTextWrap}>
+              <Text style={styles.planLabel}>Monthly</Text>
+              <Text style={styles.planPeriod}>$6.99 / month</Text>
+            </View>
           </Pressable>
         </View>
 
         <View style={styles.section}>
-          <View style={styles.featureHeaderRow}>
-            <Text style={[styles.featureLabel, styles.featureHeaderLabel]}>Features</Text>
-            <Text style={styles.featureHeaderCol}>Free</Text>
-            <Text style={[styles.featureHeaderCol, styles.proCol]}>Pro</Text>
-          </View>
           {FEATURES.map((feature) => (
             <View key={feature.label} style={styles.featureRow}>
-              <View style={styles.featureLabelRow}>
-                <Ionicons name={feature.icon} size={18} color={colors.textMuted} style={styles.featureIcon} />
-                <Text style={styles.featureLabel}>{feature.label}</Text>
-              </View>
-              <View style={styles.featureCheckCol}>
-                {feature.free && <Ionicons name="checkmark" size={18} color={colors.textMuted} />}
-              </View>
-              <View style={styles.featureCheckCol}>
-                {feature.pro && <Ionicons name="checkmark" size={18} color={colors.brandEnd} />}
-              </View>
+              <Ionicons name={feature.icon} size={18} color={colors.brandEnd} style={styles.featureIcon} />
+              <Text style={styles.featureLabel}>{feature.label}</Text>
             </View>
           ))}
         </View>
@@ -133,42 +126,39 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
     paddingBottom: tabBarClearance,
-  },
-  hero: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: spacing.xl,
-    alignItems: "flex-start",
-    marginBottom: spacing.lg,
+    alignItems: "center",
   },
   heroIconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.lg,
+    width: 64,
+    height: 64,
+    borderRadius: radius.xl,
     backgroundColor: colors.surfaceAlt,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
   },
   heroTitle: {
     color: colors.text,
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
-    marginTop: spacing.md,
+    textAlign: "center",
   },
   heroSubtitle: {
     color: colors.textMuted,
     fontSize: typography.body.fontSize,
+    textAlign: "center",
     marginTop: spacing.xs,
+    marginBottom: spacing.xl,
   },
   plans: {
-    flexDirection: "row",
+    width: "100%",
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },
   planCard: {
-    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
@@ -179,38 +169,33 @@ const styles = StyleSheet.create({
     borderColor: colors.brandEnd,
     backgroundColor: colors.surfaceRaised,
   },
-  badge: {
-    position: "absolute",
-    top: -10,
-    right: spacing.sm,
-    backgroundColor: colors.brandEnd,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  badgeText: {
-    color: "#ffffff",
-    fontSize: 10,
-    fontWeight: "700",
+  planTextWrap: {
+    flex: 1,
+    marginLeft: spacing.md,
   },
   planLabel: {
-    color: colors.textMuted,
-    fontSize: typography.caption.fontSize,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  planPrice: {
     color: colors.text,
-    fontSize: typography.title.fontSize,
-    fontWeight: "800",
-    marginTop: spacing.xs,
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
   },
   planPeriod: {
     color: colors.textMuted,
     fontSize: typography.caption.fontSize,
+    marginTop: 2,
+  },
+  savingsBadge: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  savingsBadgeText: {
+    color: colors.brandEnd,
+    fontSize: 11,
+    fontWeight: "700",
   },
   section: {
+    width: "100%",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
@@ -218,41 +203,10 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
-  featureHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingBottom: spacing.sm,
-    marginBottom: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  featureHeaderLabel: {
-    flex: 1,
-    color: colors.textMuted,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    fontSize: typography.caption.fontSize,
-    letterSpacing: 1,
-  },
-  featureHeaderCol: {
-    width: 44,
-    textAlign: "center",
-    color: colors.textMuted,
-    fontSize: typography.caption.fontSize,
-    fontWeight: "700",
-  },
-  proCol: {
-    color: colors.brandEnd,
-  },
   featureRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: spacing.sm,
-  },
-  featureLabelRow: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
   },
   featureIcon: {
     marginRight: spacing.sm,
@@ -261,11 +215,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.body.fontSize,
   },
-  featureCheckCol: {
-    width: 44,
-    alignItems: "center",
-  },
   subscribeButton: {
+    width: "100%",
     backgroundColor: colors.brandEnd,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
