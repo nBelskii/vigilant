@@ -19,8 +19,12 @@ export function AppHeader({ title, subtitle, transparent }: AppHeaderProps) {
         <Ionicons name="location" size={16} color="#ffffff" />
       </View>
       <View style={[styles.titleBlock, transparent && styles.titleBlockFloating]}>
-        <Text style={styles.title}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        {subtitle && (
+          <Text style={styles.subtitle} numberOfLines={1}>
+            {subtitle}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -29,7 +33,7 @@ export function AppHeader({ title, subtitle, transparent }: AppHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
     backgroundColor: "transparent",
@@ -48,6 +52,8 @@ const styles = StyleSheet.create({
   },
   titleBlock: {
     flexShrink: 1,
+    justifyContent: "center",
+    minHeight: 32,
   },
   titleBlockFloating: {
     alignSelf: "flex-start",

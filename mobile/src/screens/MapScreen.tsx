@@ -10,8 +10,7 @@ import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, colors } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { getSavedLocation, SavedLocation } from "../utils/savedLocation";
-import { IncidentMarker } from "../components/IncidentMarker";
-import { SelectedPinIndicator } from "../components/SelectedPinIndicator";
+import { IncidentMarker, markerAnchor } from "../components/IncidentMarker";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
 import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
@@ -97,27 +96,17 @@ export function MapScreen() {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
           const isSelected = incident.id === selectedIncidentId;
+          const size = isCrime ? 28 : 32;
           return (
-            <React.Fragment key={`${incident.source ?? "city"}-${incident.id}`}>
-              <Marker
-                coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
-                onPress={() => setSelectedIncidentId(incident.id)}
-                anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={isSelected ? 5 : isCrime ? 2 : 1}
-              >
-                <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
-              </Marker>
-              {isSelected && (
-                <Marker
-                  coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
-                  anchor={{ x: 0.5, y: 1.6 }}
-                  zIndex={6}
-                  tracksViewChanges
-                >
-                  <SelectedPinIndicator color={categoryColors[category]} />
-                </Marker>
-              )}
-            </React.Fragment>
+            <Marker
+              key={`${incident.source ?? "city"}-${incident.id}`}
+              coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
+              onPress={() => setSelectedIncidentId(incident.id)}
+              anchor={markerAnchor(size)}
+              zIndex={isSelected ? 5 : isCrime ? 2 : 1}
+            >
+              <IncidentMarker category={category} color={categoryColors[category]} size={size} selected={isSelected} />
+            </Marker>
           );
         })}
 

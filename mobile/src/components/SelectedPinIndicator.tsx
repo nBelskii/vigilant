@@ -17,11 +17,11 @@ export function SelectedPinIndicator({ color }: { color?: string }) {
     return () => animation.stop();
   }, [bounce]);
 
-  const translateY = bounce.interpolate({ inputRange: [0, 1], outputRange: [0, 8] });
+  const translateY = bounce.interpolate({ inputRange: [0, 1], outputRange: [0, 4] });
 
   return (
     <Animated.View style={[styles.wrap, { transform: [{ translateY }] }]}>
-      <Ionicons name="chevron-down" size={30} color={color ?? colors.brandEnd} />
+      <Ionicons name="chevron-down" size={22} color={color ?? colors.brandEnd} />
     </Animated.View>
   );
 }
