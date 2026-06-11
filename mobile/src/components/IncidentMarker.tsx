@@ -7,6 +7,7 @@ interface IncidentMarkerProps {
   category: IncidentCategory;
   color: string;
   size?: number;
+  selected?: boolean;
 }
 
 export const CATEGORY_ICONS: Record<IncidentCategory, keyof typeof Ionicons.glyphMap> = {
@@ -16,7 +17,7 @@ export const CATEGORY_ICONS: Record<IncidentCategory, keyof typeof Ionicons.glyp
   other: "alert-circle",
 };
 
-export function IncidentMarker({ category, color, size = 30 }: IncidentMarkerProps) {
+export function IncidentMarker({ category, color, size = 30, selected }: IncidentMarkerProps) {
   const iconSize = Math.round(size * 0.55);
 
   return (
@@ -29,6 +30,7 @@ export function IncidentMarker({ category, color, size = 30 }: IncidentMarkerPro
           borderRadius: size / 2,
           backgroundColor: color,
           shadowColor: color,
+          borderColor: selected ? colors.selectionRing : "#ffffff",
         },
       ]}
     >
@@ -41,8 +43,7 @@ const styles = StyleSheet.create({
   wrap: {
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#ffffff",
+    borderWidth: 3,
     ...Platform.select({
       ios: {
         shadowOpacity: 0.6,

@@ -33,6 +33,11 @@ export function MapScreen() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
   const mapRef = useRef<MapView>(null);
+  const prevSelectedIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    prevSelectedIdRef.current = selectedIncidentId;
+  }, [selectedIncidentId]);
 
   useEffect(() => {
     fetchIncidents()
@@ -78,8 +83,6 @@ export function MapScreen() {
     (incident) => incident.lat !== null && incident.lng !== null
   );
 
-  const selectedIncident = visibleIncidents.find((incident) => incident.id === selectedIncidentId);
-
   return (
     <View style={styles.container}>
       <MapView
@@ -97,29 +100,26 @@ export function MapScreen() {
         {visibleIncidents.map((incident) => {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
+          const isSelected = incident.id === selectedIncidentId;
+          const wasSelected = incident.id === prevSelectedIdRef.current;
           return (
             <Marker
               key={`${incident.source ?? "city"}-${incident.id}`}
               coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
               onPress={() => setSelectedIncidentId(incident.id)}
               anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={isCrime ? 2 : 1}
+              zIndex={isSelected ? 5 : isCrime ? 2 : 1}
+              tracksViewChanges={isSelected || wasSelected}
             >
-              <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
+              <IncidentMarker
+                category={category}
+                color={categoryColors[category]}
+                size={isCrime ? 28 : 32}
+                selected={isSelected}
+              />
             </Marker>
           );
         })}
-
-        {selectedIncident && (
-          <Circle
-            center={{ latitude: selectedIncident.lat as number, longitude: selectedIncident.lng as number }}
-            radius={40}
-            strokeColor={categoryColors[categorizeIncident(selectedIncident.type, selectedIncident.source)]}
-            strokeWidth={3}
-            fillColor="rgba(0,0,0,0)"
-            zIndex={10}
-          />
-        )}
 
         {userLocation && (
           <Marker

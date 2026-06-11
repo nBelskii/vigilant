@@ -13,6 +13,7 @@ export const colors = {
   success: "#22c55e",
   brandStart: "#34d399",
   brandEnd: "#059669",
+  selectionRing: "#8b5cf6",
 } as const;
 
 export const categoryColors = {
