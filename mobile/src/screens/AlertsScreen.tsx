@@ -4,7 +4,7 @@ import { fetchAlerts } from "../api/client";
 import { Alert } from "../types";
 import { AlertCard } from "../components/AlertCard";
 import { AppHeader } from "../components/AppHeader";
-import { colors, spacing, typography } from "../theme";
+import { colors, spacing, tabBarClearance, typography } from "../theme";
 
 export function AlertsScreen() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: tabBarClearance,
   },
   empty: {
     color: colors.textMuted,

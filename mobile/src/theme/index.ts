@@ -17,6 +17,9 @@ export const radius = {
   full: 999,
 } as const;
 
+// Extra bottom padding so scroll content clears the floating tab bar.
+export const tabBarClearance = 100;
+
 export const typography = {
   display: { fontSize: 28, fontWeight: "800" as const },
   title: { fontSize: 24, fontWeight: "700" as const },

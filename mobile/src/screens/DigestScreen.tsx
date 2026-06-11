@@ -6,7 +6,7 @@ import { computeStats, groupByDay } from "../utils/digest";
 import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
 import { AppHeader } from "../components/AppHeader";
-import { colors, spacing, typography } from "../theme";
+import { colors, spacing, tabBarClearance, typography } from "../theme";
 
 export function DigestScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: tabBarClearance,
   },
   statsRow: {
     flexDirection: "row",

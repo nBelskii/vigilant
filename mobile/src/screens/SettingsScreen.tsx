@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SettingsRow } from "../components/SettingsRow";
-import { colors, radius, spacing, typography } from "../theme";
+import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
 export function SettingsScreen() {
   const navigation = useNavigation<any>();
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: tabBarClearance,
   },
   sectionLabel: {
     color: colors.textMuted,

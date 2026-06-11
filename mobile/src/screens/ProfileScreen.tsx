@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { AppHeader } from "../components/AppHeader";
 import { SettingsRow } from "../components/SettingsRow";
-import { colors, gradients, radius, spacing, typography } from "../theme";
+import { colors, gradients, radius, spacing, tabBarClearance, typography } from "../theme";
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: tabBarClearance,
     alignItems: "center",
   },
   avatar: {
