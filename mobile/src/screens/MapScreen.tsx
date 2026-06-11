@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import { fetchIncidents } from "../api/client";
@@ -52,9 +52,9 @@ export function MapScreen() {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
         initialRegion={EDMONTON_REGION}
-        customMapStyle={DARK_MAP_STYLE}
+        customMapStyle={Platform.OS === "android" ? DARK_MAP_STYLE : undefined}
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
