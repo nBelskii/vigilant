@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { Incident } from "../types";
+import { edmontonLocalToUTCISO } from "../utils/time";
 
 // Edmonton's crime occurrence dataset (xd4d-c7be) was retired from the open data
 // portal. "Fire Response - Current and Historical" (7hsn-idqi) is the closest
@@ -22,10 +23,12 @@ export async function fetchIncidents(): Promise<Incident[]> {
       const lat = row.latitude ?? null;
       const lng = row.longitude ?? null;
 
-      let timestamp = row.dispatch_datetime ?? new Date().toISOString();
-      if (!row.dispatch_datetime && row.dispatch_date_date && row.dispatch_time) {
+      let timestamp = new Date().toISOString();
+      if (row.dispatch_datetime) {
+        timestamp = edmontonLocalToUTCISO(row.dispatch_datetime);
+      } else if (row.dispatch_date_date && row.dispatch_time) {
         const datePart = String(row.dispatch_date_date).split("T")[0];
-        timestamp = `${datePart}T${row.dispatch_time}.000Z`;
+        timestamp = edmontonLocalToUTCISO(`${datePart}T${row.dispatch_time}`);
       }
 
       return {

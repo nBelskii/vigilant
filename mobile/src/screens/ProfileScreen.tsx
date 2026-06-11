@@ -1,11 +1,10 @@
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { AppHeader } from "../components/AppHeader";
 import { SettingsRow } from "../components/SettingsRow";
-import { colors, gradients, radius, spacing, tabBarClearance, typography } from "../theme";
+import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -14,28 +13,26 @@ export function ProfileScreen() {
     <View style={styles.container}>
       <AppHeader title="Profile" />
       <ScrollView contentContainerStyle={styles.content}>
-        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatar}>
-          <Ionicons name="person" size={36} color="#ffffff" />
-        </LinearGradient>
+        <View style={styles.avatar}>
+          <Ionicons name="person" size={36} color={colors.brandEnd} />
+        </View>
 
         <Text style={styles.guestTitle}>You're browsing as a guest</Text>
         <Text style={styles.guestSubtitle}>Sign in to save your area and get personalized alerts.</Text>
 
-        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.signInButton}>
+        <Pressable style={styles.signInButton}>
           <Text style={styles.signInLabel}>Sign In</Text>
-        </LinearGradient>
+        </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCardWrap}>
-          <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.proCard}>
-            <View style={styles.proIconWrap}>
-              <Ionicons name="shield-checkmark" size={22} color="#ffffff" />
-            </View>
-            <View style={styles.proTextWrap}>
-              <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
-              <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#ffffff" />
-          </LinearGradient>
+        <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCard}>
+          <View style={styles.proIconWrap}>
+            <Ionicons name="shield-checkmark" size={22} color={colors.brandEnd} />
+          </View>
+          <View style={styles.proTextWrap}>
+            <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
+            <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textFaint} />
         </Pressable>
 
         <Text style={styles.sectionLabel}>Preferences</Text>
@@ -74,6 +71,9 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: radius.full,
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
     marginTop: spacing.xl,
@@ -93,32 +93,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   signInButton: {
-    width: "85%",
+    width: "92%",
     paddingVertical: spacing.md,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brandEnd,
     alignItems: "center",
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   signInLabel: {
     color: "#ffffff",
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
-  proCardWrap: {
-    width: "92%",
-    marginBottom: spacing.lg,
-  },
   proCard: {
     flexDirection: "row",
     alignItems: "center",
+    width: "92%",
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing.md,
+    marginBottom: spacing.lg,
   },
   proIconWrap: {
     width: 40,
     height: 40,
     borderRadius: radius.md,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: colors.surfaceAlt,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,
@@ -127,12 +129,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   proTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
   proSubtitle: {
-    color: "rgba(255,255,255,0.85)",
+    color: colors.textMuted,
     fontSize: typography.caption.fontSize,
     marginTop: 2,
   },

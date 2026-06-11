@@ -1,9 +1,8 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, gradients, radius, spacing, typography } from "../theme";
+import { colors, radius, spacing, typography } from "../theme";
 
 interface AppHeaderProps {
   title: string;
@@ -16,10 +15,10 @@ export function AppHeader({ title, subtitle, transparent }: AppHeaderProps) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }, transparent && styles.transparent]}>
-      <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logoDot}>
+      <View style={styles.logoDot}>
         <Ionicons name="location" size={16} color="#ffffff" />
-      </LinearGradient>
-      <View style={styles.titleBlock}>
+      </View>
+      <View style={[styles.titleBlock, transparent && styles.titleBlockFloating]}>
         <Text style={styles.title}>{title}</Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
@@ -42,12 +41,22 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.md,
+    backgroundColor: colors.brandEnd,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.sm,
   },
   titleBlock: {
     flexShrink: 1,
+  },
+  titleBlockFloating: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.85)",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
   },
   title: {
     color: colors.text,

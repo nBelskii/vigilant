@@ -39,7 +39,7 @@ export function RadiusMapPreview({ center, radiusKm, interactive, onCenterChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [radiusKm]);
 
-  const handleRegionChangeComplete = (region: Region) => {
+  const handleRegionChange = (region: Region) => {
     if (!interactive) return;
     const next = { lat: region.latitude, lng: region.longitude };
     setDraftCenter(next);
@@ -62,7 +62,7 @@ export function RadiusMapPreview({ center, radiusKm, interactive, onCenterChange
         showsUserLocation={false}
         showsCompass={false}
         toolbarEnabled={false}
-        onRegionChangeComplete={handleRegionChangeComplete}
+        onRegionChange={handleRegionChange}
       >
         <Circle
           center={{ latitude: circleCenter.lat, longitude: circleCenter.lng }}

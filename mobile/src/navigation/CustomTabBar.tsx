@@ -1,11 +1,10 @@
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, gradients, radius } from "../theme";
+import { colors, radius } from "../theme";
 
 const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }> = {
   Home: { focused: "home", unfocused: "home-outline" },
@@ -36,14 +35,9 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           return (
             <Pressable key={route.key} onPress={onPress} style={styles.item} hitSlop={6}>
               {isFocused ? (
-                <LinearGradient
-                  colors={gradients.brand}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.activePill}
-                >
+                <View style={styles.activePill}>
                   <Ionicons name={icon.focused} size={22} color="#ffffff" />
-                </LinearGradient>
+                </View>
               ) : (
                 <View style={styles.inactivePill}>
                   <Ionicons name={icon.unfocused} size={22} color={colors.textFaint} />
@@ -85,6 +79,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: radius.lg,
+    backgroundColor: colors.brandEnd,
     alignItems: "center",
     justifyContent: "center",
   },

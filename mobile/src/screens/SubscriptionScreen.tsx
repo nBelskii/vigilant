@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { colors, gradients, radius, spacing, tabBarClearance, typography } from "../theme";
+import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
 interface PlanFeature {
   icon: keyof typeof Ionicons.glyphMap;
@@ -40,11 +39,13 @@ export function SubscriptionScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
-          <Ionicons name="shield-checkmark" size={32} color="#ffffff" />
+        <View style={styles.hero}>
+          <View style={styles.heroIconWrap}>
+            <Ionicons name="shield-checkmark" size={28} color={colors.brandEnd} />
+          </View>
           <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
           <Text style={styles.heroSubtitle}>Unlock unlimited watched areas, instant push alerts and more.</Text>
-        </LinearGradient>
+        </View>
 
         <View style={styles.plans}>
           <Pressable
@@ -52,7 +53,7 @@ export function SubscriptionScreen() {
             onPress={() => setSelected("monthly")}
           >
             <Text style={styles.planLabel}>Monthly</Text>
-            <Text style={styles.planPrice}>$4.99</Text>
+            <Text style={styles.planPrice}>$6.99</Text>
             <Text style={styles.planPeriod}>per month</Text>
           </Pressable>
           <Pressable
@@ -60,10 +61,10 @@ export function SubscriptionScreen() {
             onPress={() => setSelected("yearly")}
           >
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>SAVE 33%</Text>
+              <Text style={styles.badgeText}>SAVE $34/YR</Text>
             </View>
             <Text style={styles.planLabel}>Yearly</Text>
-            <Text style={styles.planPrice}>$39.99</Text>
+            <Text style={styles.planPrice}>$49.99</Text>
             <Text style={styles.planPeriod}>per year</Text>
           </Pressable>
         </View>
@@ -90,13 +91,11 @@ export function SubscriptionScreen() {
           ))}
         </View>
 
-        <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.subscribeButton}>
-          <Pressable style={styles.subscribePressable}>
-            <Text style={styles.subscribeLabel}>
-              {selected === "yearly" ? "Start Pro — $39.99/yr" : "Start Pro — $4.99/mo"}
-            </Text>
-          </Pressable>
-        </LinearGradient>
+        <Pressable style={styles.subscribeButton}>
+          <Text style={styles.subscribeLabel}>
+            {selected === "yearly" ? "Start Pro — $49.99/yr" : "Start Pro — $6.99/mo"}
+          </Text>
+        </Pressable>
         <Text style={styles.disclaimer}>
           This is a preview of Nearby Pro. Payments aren't enabled yet.
         </Text>
@@ -136,19 +135,30 @@ const styles = StyleSheet.create({
     paddingBottom: tabBarClearance,
   },
   hero: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: radius.xl,
     padding: spacing.xl,
     alignItems: "flex-start",
     marginBottom: spacing.lg,
   },
+  heroIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   heroTitle: {
-    color: "#ffffff",
+    color: colors.text,
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
     marginTop: spacing.md,
   },
   heroSubtitle: {
-    color: "rgba(255,255,255,0.85)",
+    color: colors.textMuted,
     fontSize: typography.body.fontSize,
     marginTop: spacing.xs,
   },
@@ -256,10 +266,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   subscribeButton: {
+    backgroundColor: colors.brandEnd,
     borderRadius: radius.md,
-    overflow: "hidden",
-  },
-  subscribePressable: {
     paddingVertical: spacing.md,
     alignItems: "center",
   },

@@ -5,7 +5,7 @@ import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { distanceKm } from "../utils/geo";
 import { CATEGORY_ICONS } from "./IncidentMarker";
-import { categoryColors, colors, radius, spacing, typography } from "../theme";
+import { categoryColors, colors, radius, spacing, tabBarClearance, typography } from "../theme";
 
 interface IncidentDetailSheetProps {
   incidents: Incident[];
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: spacing.md,
     right: spacing.md,
-    bottom: spacing.xl,
+    bottom: tabBarClearance,
     backgroundColor: colors.surfaceRaised,
     borderRadius: radius.xl,
     borderWidth: 1,

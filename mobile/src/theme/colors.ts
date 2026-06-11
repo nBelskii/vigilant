@@ -15,11 +15,6 @@ export const colors = {
   brandEnd: "#059669",
 } as const;
 
-export const gradients = {
-  brand: [colors.brandStart, colors.brandEnd] as const,
-  card: ["rgba(52,211,153,0.14)", "rgba(5,150,105,0.04)"] as const,
-};
-
 export const categoryColors = {
   crime: colors.danger,
   fire: colors.warning,
