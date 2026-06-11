@@ -24,6 +24,12 @@ const EDMONTON_REGION: Region = {
   longitudeDelta: 0.2,
 };
 
+// Precomputed once - passing a freshly-created object as `anchor` on every
+// render makes react-native-maps re-create the native marker, which can
+// make pins flicker or briefly disappear.
+const DEFAULT_ANCHOR = markerAnchor(32);
+const CRIME_ANCHOR = markerAnchor(28);
+
 export function MapScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
@@ -33,6 +39,11 @@ export function MapScreen() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
   const mapRef = useRef<MapView>(null);
+  const prevSelectedIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    prevSelectedIdRef.current = selectedIncidentId;
+  }, [selectedIncidentId]);
 
   useEffect(() => {
     fetchIncidents()
@@ -96,14 +107,16 @@ export function MapScreen() {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
           const isSelected = incident.id === selectedIncidentId;
+          const wasSelected = incident.id === prevSelectedIdRef.current;
           const size = isCrime ? 28 : 32;
           return (
             <Marker
               key={`${incident.source ?? "city"}-${incident.id}`}
               coordinate={{ latitude: incident.lat as number, longitude: incident.lng as number }}
               onPress={() => setSelectedIncidentId(incident.id)}
-              anchor={markerAnchor(size)}
+              anchor={isCrime ? CRIME_ANCHOR : DEFAULT_ANCHOR}
               zIndex={isSelected ? 5 : isCrime ? 2 : 1}
+              tracksViewChanges={isSelected || wasSelected}
             >
               <IncidentMarker category={category} color={categoryColors[category]} size={size} selected={isSelected} />
             </Marker>
