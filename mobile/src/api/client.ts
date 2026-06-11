@@ -2,7 +2,7 @@ import { Alert, AirQuality, Incident } from "../types";
 
 // Set this to your computer's LAN IP so a phone running Expo Go (on the same
 // Wi-Fi) can reach the backend. Find it with `ipconfig getifaddr en0` on Mac.
-const HOST = "192.168.1.213";
+const HOST = "172.20.10.2";
 export const API_BASE_URL = `http://${HOST}:3001`;
 
 async function getJson<T>(path: string): Promise<T> {
