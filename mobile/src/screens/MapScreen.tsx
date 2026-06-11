@@ -25,6 +25,15 @@ const EDMONTON_REGION: Region = {
   longitudeDelta: 0.2,
 };
 
+// Marker size scales with zoom level so pins stay visible when zoomed out
+// and don't overwhelm the map when zoomed in.
+function markerSizeForDelta(latitudeDelta: number): number {
+  if (latitudeDelta >= 0.4) return 16;
+  if (latitudeDelta >= 0.15) return 24;
+  if (latitudeDelta >= 0.05) return 30;
+  return 38;
+}
+
 export function MapScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
@@ -33,7 +42,24 @@ export function MapScreen() {
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
+  const [markerSize, setMarkerSize] = useState(() => markerSizeForDelta(EDMONTON_REGION.latitudeDelta));
+  const [trackChanges, setTrackChanges] = useState(true);
   const mapRef = useRef<MapView>(null);
+
+  const handleRegionChangeComplete = useCallback((region: Region) => {
+    const nextSize = markerSizeForDelta(region.latitudeDelta);
+    setMarkerSize((prevSize) => {
+      if (prevSize === nextSize) return prevSize;
+      setTrackChanges(true);
+      return nextSize;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!trackChanges) return;
+    const id = requestAnimationFrame(() => setTrackChanges(false));
+    return () => cancelAnimationFrame(id);
+  }, [trackChanges, markerSize]);
 
   useEffect(() => {
     fetchIncidents()
@@ -94,21 +120,23 @@ export function MapScreen() {
         showsMyLocationButton={false}
         showsCompass={false}
         toolbarEnabled={false}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
         {selectedIncident && (
           <Marker
             coordinate={{ latitude: selectedIncident.lat as number, longitude: selectedIncident.lng as number }}
             anchor={{ x: 0.5, y: 0.5 }}
             zIndex={999}
-            tracksViewChanges={false}
+            tracksViewChanges={trackChanges}
           >
-            <SelectionRing />
+            <SelectionRing size={markerSize * 2} />
           </Marker>
         )}
 
         {visibleIncidents.map((incident) => {
           const category = categorizeIncident(incident.type, incident.source);
           const isCrime = incident.source === "police";
+          const size = isCrime ? Math.max(14, markerSize - 4) : markerSize;
           return (
             <Marker
               key={`${incident.source ?? "city"}-${incident.id}`}
@@ -116,9 +144,9 @@ export function MapScreen() {
               onPress={() => setSelectedIncidentId(incident.id)}
               anchor={{ x: 0.5, y: 0.5 }}
               zIndex={isCrime ? 2 : 1}
-              tracksViewChanges={false}
+              tracksViewChanges={trackChanges}
             >
-              <IncidentMarker category={category} color={categoryColors[category]} size={isCrime ? 28 : 32} />
+              <IncidentMarker category={category} color={categoryColors[category]} size={size} />
             </Marker>
           );
         })}
