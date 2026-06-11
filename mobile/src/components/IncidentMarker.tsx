@@ -32,7 +32,7 @@ export function IncidentMarker({ category, color, size = 30 }: IncidentMarkerPro
         },
       ]}
     >
-      <Ionicons name={CATEGORY_ICONS[category]} size={iconSize} color={colors.text} />
+      <Ionicons name={CATEGORY_ICONS[category]} size={iconSize} color="#ffffff" />
     </View>
   );
 }
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: colors.text,
+    borderColor: "#ffffff",
     ...Platform.select({
       ios: {
         shadowOpacity: 0.6,

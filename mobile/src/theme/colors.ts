@@ -1,27 +1,27 @@
 export const colors = {
-  background: "#0a0a0f",
-  surface: "#15151f",
-  surfaceAlt: "#1e1e2c",
-  surfaceRaised: "#23232f",
-  border: "#2a2a3a",
-  text: "#ffffff",
-  textMuted: "#9a9ab0",
-  textFaint: "#6b6b80",
-  accent: "#4f7fff",
-  danger: "#ff4757",
-  warning: "#ffa502",
-  success: "#2ed573",
-  brandStart: "#ff9500",
-  brandEnd: "#ff2d55",
+  background: "#f2f8f4",
+  surface: "#ffffff",
+  surfaceAlt: "#e9f3ec",
+  surfaceRaised: "#ffffff",
+  border: "#dde8e1",
+  text: "#102420",
+  textMuted: "#62786d",
+  textFaint: "#9bb0a4",
+  accent: "#3b82f6",
+  danger: "#e5484d",
+  warning: "#f5a524",
+  success: "#22c55e",
+  brandStart: "#34d399",
+  brandEnd: "#059669",
 } as const;
 
 export const gradients = {
   brand: [colors.brandStart, colors.brandEnd] as const,
-  card: ["rgba(255,149,0,0.12)", "rgba(255,45,85,0.04)"] as const,
+  card: ["rgba(52,211,153,0.14)", "rgba(5,150,105,0.04)"] as const,
 };
 
 export const categoryColors = {
-  crime: colors.brandEnd,
+  crime: colors.danger,
   fire: colors.warning,
   traffic: colors.accent,
   other: colors.textMuted,

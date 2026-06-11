@@ -69,7 +69,7 @@ export function RadiusMapPreview({ center, radiusKm, interactive, onCenterChange
           radius={radiusKm * 1000}
           strokeColor={colors.brandEnd}
           strokeWidth={2}
-          fillColor="rgba(255,45,85,0.12)"
+          fillColor="rgba(5,150,105,0.14)"
         />
         {!interactive && (
           <Marker coordinate={{ latitude: center.lat, longitude: center.lng }} anchor={{ x: 0.5, y: 1 }}>

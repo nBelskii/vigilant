@@ -41,7 +41,7 @@ export function SubscriptionScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
-          <Ionicons name="shield-checkmark" size={32} color={colors.text} />
+          <Ionicons name="shield-checkmark" size={32} color="#ffffff" />
           <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
           <Text style={styles.heroSubtitle}>Unlock unlimited watched areas, instant push alerts and more.</Text>
         </LinearGradient>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   heroTitle: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
     marginTop: spacing.md,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   badgeText: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: 10,
     fontWeight: "700",
   },
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   subscribeLabel: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   severityText: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
   },

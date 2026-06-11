@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationContainer, DarkTheme, Theme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, Theme } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { HomeScreen } from "../screens/HomeScreen";
@@ -16,9 +16,9 @@ const Tab = createBottomTabNavigator();
 const ProfileStack = createNativeStackNavigator();
 
 const navigationTheme: Theme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
+    ...DefaultTheme.colors,
     background: colors.background,
     card: colors.surface,
     border: colors.border,

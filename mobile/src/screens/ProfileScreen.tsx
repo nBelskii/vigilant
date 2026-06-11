@@ -15,7 +15,7 @@ export function ProfileScreen() {
       <AppHeader title="Profile" />
       <ScrollView contentContainerStyle={styles.content}>
         <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatar}>
-          <Ionicons name="person" size={36} color={colors.text} />
+          <Ionicons name="person" size={36} color="#ffffff" />
         </LinearGradient>
 
         <Text style={styles.guestTitle}>You're browsing as a guest</Text>
@@ -28,13 +28,13 @@ export function ProfileScreen() {
         <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCardWrap}>
           <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.proCard}>
             <View style={styles.proIconWrap}>
-              <Ionicons name="shield-checkmark" size={22} color={colors.text} />
+              <Ionicons name="shield-checkmark" size={22} color="#ffffff" />
             </View>
             <View style={styles.proTextWrap}>
               <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
               <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.text} />
+            <Ionicons name="chevron-forward" size={20} color="#ffffff" />
           </LinearGradient>
         </Pressable>
 
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   signInLabel: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   proTitle: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },

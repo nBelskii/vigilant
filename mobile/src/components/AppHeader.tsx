@@ -17,7 +17,7 @@ export function AppHeader({ title, subtitle, transparent }: AppHeaderProps) {
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }, transparent && styles.transparent]}>
       <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logoDot}>
-        <Ionicons name="location" size={16} color={colors.text} />
+        <Ionicons name="location" size={16} color="#ffffff" />
       </LinearGradient>
       <View style={styles.titleBlock}>
         <Text style={styles.title}>{title}</Text>

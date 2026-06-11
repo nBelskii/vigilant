@@ -128,7 +128,7 @@ export function MapScreen() {
               radius={watchedLocation.radiusKm * 1000}
               strokeColor={colors.brandEnd}
               strokeWidth={2}
-              fillColor="rgba(255,45,85,0.08)"
+              fillColor="rgba(5,150,105,0.10)"
               zIndex={0}
             />
             <Marker

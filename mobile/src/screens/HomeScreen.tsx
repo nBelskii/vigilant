@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { AppHeader } from "../components/AppHeader";
@@ -7,6 +7,7 @@ import { AddressSearch } from "../components/AddressSearch";
 import { RadiusSlider } from "../components/RadiusSlider";
 import { RadiusMapPreview } from "../components/RadiusMapPreview";
 import { QuickActionCard } from "../components/QuickActionCard";
+import { GlassButton } from "../components/GlassButton";
 import { StatCard } from "../components/StatCard";
 import { fetchAirQuality, fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Incident } from "../types";
@@ -108,16 +109,15 @@ export function HomeScreen() {
         </View>
 
         {draftCenter && distanceKm(center, draftCenter) > 0.05 && (
-          <Pressable style={styles.useLocationButton} onPress={handleUseDraftCenter} disabled={savingLocation}>
-            {savingLocation ? (
-              <ActivityIndicator size="small" color={colors.text} />
-            ) : (
-              <>
-                <Ionicons name="checkmark-circle" size={18} color={colors.text} style={styles.useLocationIcon} />
-                <Text style={styles.useLocationLabel}>Use this location</Text>
-              </>
-            )}
-          </Pressable>
+          <View style={styles.useLocationWrap}>
+            <GlassButton
+              label={savingLocation ? "Saving..." : "Use this location"}
+              icon="checkmark-circle"
+              variant="primary"
+              disabled={savingLocation}
+              onPress={handleUseDraftCenter}
+            />
+          </View>
         )}
 
         <RadiusSlider value={radiusKm} onChange={handleRadiusChange} />
@@ -191,22 +191,9 @@ const styles = StyleSheet.create({
   mapPreview: {
     marginTop: spacing.sm,
   },
-  useLocationButton: {
-    flexDirection: "row",
+  useLocationWrap: {
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.brandEnd,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.sm,
     marginTop: spacing.sm,
-  },
-  useLocationIcon: {
-    marginRight: spacing.xs,
-  },
-  useLocationLabel: {
-    color: colors.text,
-    fontSize: typography.body.fontSize,
-    fontWeight: "700",
   },
   statsRow: {
     flexDirection: "row",

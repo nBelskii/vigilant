@@ -45,7 +45,7 @@ export function MapLegend({ showCrime, onToggleCrime }: MapLegendProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "rgba(19,19,38,0.9)",
+    backgroundColor: "rgba(255,255,255,0.85)",
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,

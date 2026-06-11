@@ -10,6 +10,22 @@ export interface MapSkin {
   iosMapType: MapType;
 }
 
+const SAFE_STYLE = [
+  { elementType: "geometry", stylers: [{ color: "#f2f8f4" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#62786d" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#dde8e1" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#e4f2e9" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#cfe9de" }] },
+  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#e9f3ec" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#cdebd9" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#dde8e1" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+];
+
 const NIGHT_STYLE = [
   { elementType: "geometry", stylers: [{ color: "#16161f" }] },
   { elementType: "labels.text.fill", stylers: [{ color: "#9a9ab0" }] },
@@ -54,6 +70,7 @@ const RETRO_STYLE = [
 ];
 
 export const MAP_SKINS: MapSkin[] = [
+  { id: "safe", label: "Safe", icon: "leaf", androidStyle: SAFE_STYLE, iosMapType: "standard" },
   { id: "night", label: "Night", icon: "moon", androidStyle: NIGHT_STYLE, iosMapType: "standard" },
   { id: "midnight", label: "Midnight", icon: "contrast", androidStyle: MIDNIGHT_STYLE, iosMapType: "mutedStandard" },
   { id: "retro", label: "Retro", icon: "color-palette", androidStyle: RETRO_STYLE, iosMapType: "standard" },

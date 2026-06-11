@@ -20,7 +20,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
 
   return (
     <View style={[styles.wrapper, { bottom: insets.bottom + 12 }]} pointerEvents="box-none">
-      <BlurView intensity={60} tint="dark" style={styles.bar}>
+      <BlurView intensity={60} tint="light" style={styles.bar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
@@ -42,7 +42,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                   end={{ x: 1, y: 1 }}
                   style={styles.activePill}
                 >
-                  <Ionicons name={icon.focused} size={22} color={colors.text} />
+                  <Ionicons name={icon.focused} size={22} color="#ffffff" />
                 </LinearGradient>
               ) : (
                 <View style={styles.inactivePill}>
@@ -70,11 +70,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.6)",
     paddingVertical: 10,
     paddingHorizontal: 10,
     justifyContent: "space-between",
-    backgroundColor: "rgba(21,21,31,0.6)",
+    backgroundColor: "rgba(255,255,255,0.55)",
   },
   item: {
     flex: 1,
