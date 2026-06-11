@@ -8,3 +8,12 @@ export const CACHE_KEYS = {
   alerts: "alerts",
   airquality: "airquality",
 } as const;
+
+// Per-source cache lifetimes, tuned to how often each upstream source actually
+// changes so the app gets the freshest data without hammering the upstream APIs.
+export const CACHE_TTL = {
+  incidents: 120, // Edmonton fire/EMS dispatch feed - updates frequently
+  crime: 600, // EPS occurrences - reported with a 24-48h delay, updates a few times a day
+  alerts: 90, // 511 traffic + weather alerts - near real-time
+  airquality: 600, // Environment Canada AQHI - updates hourly
+} as const;

@@ -3,11 +3,16 @@ import { colors } from "../theme";
 export function severityColor(severity: string): string {
   const normalized = severity.toLowerCase();
 
-  if (normalized.includes("high") || normalized.includes("severe") || normalized.includes("critical")) {
+  if (
+    normalized.includes("high") ||
+    normalized.includes("severe") ||
+    normalized.includes("critical") ||
+    normalized.includes("warning")
+  ) {
     return colors.danger;
   }
 
-  if (normalized.includes("medium") || normalized.includes("moderate")) {
+  if (normalized.includes("medium") || normalized.includes("moderate") || normalized.includes("watch")) {
     return colors.warning;
   }
 

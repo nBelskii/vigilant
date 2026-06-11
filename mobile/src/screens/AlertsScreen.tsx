@@ -39,10 +39,15 @@ export function AlertsScreen() {
     load().finally(() => setLoading(false));
   }, [load]);
 
+  // Refresh whenever the tab regains focus, then keep polling for new
+  // incidents/alerts every 60s while it stays in view.
   useFocusEffect(
     useCallback(() => {
       getSavedLocation().then(setLocation);
-    }, [])
+      load();
+      const interval = setInterval(load, 60000);
+      return () => clearInterval(interval);
+    }, [load])
   );
 
   const onRefresh = useCallback(async () => {

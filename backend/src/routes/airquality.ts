@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { fetchAirQuality } from "../services/airQualityService";
-import { cache, CACHE_KEYS } from "../utils/cache";
+import { cache, CACHE_KEYS, CACHE_TTL } from "../utils/cache";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.get("/", async (_req, res) => {
   }
 
   const airQuality = await fetchAirQuality();
-  cache.set(CACHE_KEYS.airquality, airQuality);
+  cache.set(CACHE_KEYS.airquality, airQuality, CACHE_TTL.airquality);
   res.json(airQuality);
 });
 

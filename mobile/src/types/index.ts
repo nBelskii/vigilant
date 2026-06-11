@@ -14,6 +14,7 @@ export interface Alert {
   severity: string;
   location: string;
   timestamp: string;
+  category?: "traffic" | "weather";
 }
 
 export interface AirQuality {

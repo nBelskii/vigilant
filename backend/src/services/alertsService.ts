@@ -19,6 +19,7 @@ export async function fetchAlerts(): Promise<Alert[]> {
       severity: row.Severity ?? row.Priority ?? "Unknown",
       location: row.RoadwayName ?? row.LocationDescription ?? row.Location ?? "Alberta",
       timestamp: row.LastUpdated ?? row.StartDate ?? new Date().toISOString(),
+      category: "traffic" as const,
     }));
   } catch (err) {
     console.error("fetchAlerts error:", err);

@@ -11,11 +11,12 @@ interface AlertCardProps {
 
 export function AlertCard({ alert }: AlertCardProps) {
   const accent = severityColor(alert.severity);
+  const icon = alert.category === "weather" ? "thunderstorm" : "car";
 
   return (
     <View style={styles.card}>
       <View style={[styles.iconWrap, { backgroundColor: `${accent}26` }]}>
-        <Ionicons name="warning" size={18} color={accent} />
+        <Ionicons name={icon} size={18} color={accent} />
       </View>
       <View style={styles.body}>
         <View style={styles.headerRow}>

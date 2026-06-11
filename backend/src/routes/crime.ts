@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { fetchCrimeIncidents } from "../services/crimeService";
-import { cache, CACHE_KEYS } from "../utils/cache";
+import { cache, CACHE_KEYS, CACHE_TTL } from "../utils/cache";
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.get("/", async (_req, res) => {
   }
 
   const crime = await fetchCrimeIncidents();
-  cache.set(CACHE_KEYS.crime, crime);
+  cache.set(CACHE_KEYS.crime, crime, CACHE_TTL.crime);
   res.json(crime);
 });
 
