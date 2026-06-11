@@ -42,7 +42,7 @@ function TabIcon({ name, isFocused, onPress }: TabIconProps) {
         <Ionicons
           name={isFocused ? icon.focused : icon.unfocused}
           size={22}
-          color={isFocused ? "#ffffff" : colors.textFaint}
+          color={isFocused ? "#ffffff" : colors.textMuted}
         />
       </View>
     </Pressable>
@@ -54,7 +54,7 @@ export function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.wrapper, { bottom: insets.bottom + 12 }]} pointerEvents="box-none">
-      <BlurView intensity={60} tint="light" style={styles.bar}>
+      <BlurView intensity={80} tint="light" style={styles.bar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
 
@@ -85,11 +85,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.6)",
+    borderColor: "rgba(255,255,255,0.8)",
     paddingVertical: 10,
     paddingHorizontal: 10,
     justifyContent: "space-between",
-    backgroundColor: "rgba(255,255,255,0.55)",
+    backgroundColor: "rgba(255,255,255,0.78)",
+    shadowColor: "#000000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   item: {
     flex: 1,

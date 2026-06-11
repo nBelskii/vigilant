@@ -99,7 +99,7 @@ export function MapScreen() {
           <Marker
             coordinate={{ latitude: selectedIncident.lat as number, longitude: selectedIncident.lng as number }}
             anchor={{ x: 0.5, y: 0.5 }}
-            zIndex={0}
+            zIndex={999}
             tracksViewChanges={false}
           >
             <SelectionRing />
