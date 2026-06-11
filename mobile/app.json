@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Vigilant",
+    "slug": "vigilant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ca.vigilant.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Vigilant uses your location to show nearby safety alerts and incidents on the map."
+      }
+    },
+    "android": {
+      "package": "ca.vigilant.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0a0f",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Vigilant uses your location to show nearby safety alerts and incidents on the map."
+        }
+      ]
+    ]
+  }
+}
