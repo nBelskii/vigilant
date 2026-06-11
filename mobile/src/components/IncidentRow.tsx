@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, colors, radius, spacing, typography } from "../theme";
@@ -8,14 +9,26 @@ interface IncidentRowProps {
   incident: Incident;
 }
 
+const CATEGORY_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  crime: "shield-outline",
+  fire: "flame-outline",
+  traffic: "car-outline",
+  other: "ellipse-outline",
+};
+
 export function IncidentRow({ incident }: IncidentRowProps) {
-  const category = categorizeIncident(incident.type);
+  const category = categorizeIncident(incident.type, incident.source);
+  const accent = categoryColors[category];
 
   return (
     <View style={styles.row}>
-      <View style={[styles.dot, { backgroundColor: categoryColors[category] }]} />
+      <View style={[styles.iconWrap, { backgroundColor: `${accent}26` }]}>
+        <Ionicons name={CATEGORY_ICONS[category]} size={16} color={accent} />
+      </View>
       <View style={styles.content}>
-        <Text style={styles.type}>{incident.type}</Text>
+        <Text style={styles.type} numberOfLines={1}>
+          {incident.type}
+        </Text>
         <Text style={styles.location} numberOfLines={1}>
           {incident.location}
         </Text>
@@ -36,14 +49,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  iconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: spacing.md,
   },
   content: {
@@ -60,7 +77,7 @@ const styles = StyleSheet.create({
     fontSize: typography.caption.fontSize,
   },
   time: {
-    color: colors.textMuted,
+    color: colors.textFaint,
     fontSize: typography.caption.fontSize,
     marginLeft: spacing.sm,
   },

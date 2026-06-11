@@ -3,6 +3,7 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { fetchAlerts } from "../api/client";
 import { Alert } from "../types";
 import { AlertCard } from "../components/AlertCard";
+import { AppHeader } from "../components/AppHeader";
 import { colors, spacing, typography } from "../theme";
 
 export function AlertsScreen() {
@@ -31,12 +32,13 @@ export function AlertsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Today's Alerts</Text>
+      <AppHeader title="Alerts" subtitle="Alberta 511 road alerts" />
       <FlatList
         data={alerts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <AlertCard alert={item} />}
         contentContainerStyle={styles.listContent}
+        ListHeaderComponent={<View style={{ height: spacing.md }} />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
         }
@@ -52,15 +54,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    padding: spacing.lg,
-  },
-  title: {
-    color: colors.text,
-    fontSize: typography.title.fontSize,
-    fontWeight: typography.title.fontWeight,
-    marginBottom: spacing.lg,
   },
   listContent: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   empty: {

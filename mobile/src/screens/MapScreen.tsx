@@ -6,10 +6,13 @@ import { fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, colors } from "../theme";
+import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { MarkerDot } from "../components/MarkerDot";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
+import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
+import { AppHeader } from "../components/AppHeader";
 
 const EDMONTON_REGION: Region = {
   latitude: 53.5461,
@@ -18,26 +21,11 @@ const EDMONTON_REGION: Region = {
   longitudeDelta: 0.2,
 };
 
-const DARK_MAP_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#16161f" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#9a9ab8" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0a0a0f" }] },
-  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2a2a45" }] },
-  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1c1c2e" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#33335a" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0d1729" }] },
-  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#181826" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#102018" }] },
-  { featureType: "transit", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#2a2a45" }] },
-  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-];
-
 export function MapScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
   const [showCrime, setShowCrime] = useState(true);
+  const [mapSkin, setMapSkin] = useState<MapSkin>(MAP_SKINS[0]);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
 
@@ -68,8 +56,9 @@ export function MapScreen() {
       <MapView
         style={styles.map}
         provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+        mapType={Platform.OS === "ios" ? mapSkin.iosMapType : "standard"}
         initialRegion={EDMONTON_REGION}
-        customMapStyle={Platform.OS === "android" ? DARK_MAP_STYLE : undefined}
+        customMapStyle={Platform.OS === "android" ? mapSkin.androidStyle : undefined}
         showsUserLocation={false}
         showsMyLocationButton={false}
         showsCompass={false}
@@ -107,7 +96,13 @@ export function MapScreen() {
         )}
       </MapView>
 
-      <MapLegend showCrime={showCrime} onToggleCrime={() => setShowCrime((prev) => !prev)} />
+      <View style={styles.overlay} pointerEvents="box-none">
+        <AppHeader title="Nearby" subtitle="Edmonton, AB" transparent />
+        <View style={styles.topRow} pointerEvents="box-none">
+          <MapLegend showCrime={showCrime} onToggleCrime={() => setShowCrime((prev) => !prev)} />
+          <MapStyleSwitcher selected={mapSkin} onSelect={setMapSkin} />
+        </View>
+      </View>
 
       <IncidentDetailSheet incident={selectedIncident} onClose={() => setSelectedIncident(null)} />
     </View>
@@ -121,5 +116,18 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingHorizontal: 16,
+    marginTop: 8,
   },
 });

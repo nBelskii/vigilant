@@ -5,6 +5,7 @@ import { Incident } from "../types";
 import { computeStats, groupByDay } from "../utils/digest";
 import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
+import { AppHeader } from "../components/AppHeader";
 import { colors, spacing, typography } from "../theme";
 
 export function DigestScreen() {
@@ -34,9 +35,9 @@ export function DigestScreen() {
       : colors.success;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Weekly Digest</Text>
-
+    <View style={styles.container}>
+      <AppHeader title="Digest" subtitle="This week in Edmonton" />
+      <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.statsRow}>
         <StatCard label="Total Incidents" value={String(stats.total)} />
         <StatCard label="Fires / Emergencies" value={String(stats.fires)} valueColor={colors.warning} />
@@ -55,7 +56,8 @@ export function DigestScreen() {
           ))}
         </View>
       ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -67,12 +69,6 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
-  },
-  title: {
-    color: colors.text,
-    fontSize: typography.title.fontSize,
-    fontWeight: typography.title.fontWeight,
-    marginBottom: spacing.lg,
   },
   statsRow: {
     flexDirection: "row",

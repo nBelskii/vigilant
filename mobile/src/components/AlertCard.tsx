@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Alert } from "../types";
 import { severityColor } from "../utils/severity";
 import { colors, radius, spacing, typography } from "../theme";
@@ -9,33 +10,56 @@ interface AlertCardProps {
 }
 
 export function AlertCard({ alert }: AlertCardProps) {
-  const borderColor = severityColor(alert.severity);
+  const accent = severityColor(alert.severity);
 
   return (
-    <View style={[styles.card, { borderLeftColor: borderColor }]}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title} numberOfLines={2}>
-          {alert.title}
-        </Text>
-        <View style={[styles.severityBadge, { backgroundColor: borderColor }]}>
-          <Text style={styles.severityText}>{alert.severity}</Text>
-        </View>
+    <View style={styles.card}>
+      <View style={[styles.iconWrap, { backgroundColor: `${accent}26` }]}>
+        <Ionicons name="warning" size={18} color={accent} />
       </View>
-      <Text style={styles.location}>{alert.location}</Text>
-      <Text style={styles.timestamp}>
-        {new Date(alert.timestamp).toLocaleString("en-CA", { timeZone: "America/Edmonton" })}
-      </Text>
+      <View style={styles.body}>
+        <View style={styles.headerRow}>
+          <Text style={styles.title} numberOfLines={2}>
+            {alert.title}
+          </Text>
+          <View style={[styles.severityBadge, { backgroundColor: accent }]}>
+            <Text style={styles.severityText}>{alert.severity}</Text>
+          </View>
+        </View>
+        <View style={styles.metaRow}>
+          <Ionicons name="location-outline" size={12} color={colors.textMuted} />
+          <Text style={styles.location} numberOfLines={1}>
+            {alert.location}
+          </Text>
+        </View>
+        <Text style={styles.timestamp}>
+          {new Date(alert.timestamp).toLocaleString("en-CA", { timeZone: "America/Edmonton" })}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    flexDirection: "row",
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderLeftWidth: 4,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
+  },
+  iconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
+  },
+  body: {
+    flex: 1,
   },
   headerRow: {
     flexDirection: "row",
@@ -60,13 +84,18 @@ const styles = StyleSheet.create({
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
   location: {
     color: colors.textMuted,
     fontSize: typography.caption.fontSize,
-    marginBottom: spacing.xs,
+    marginLeft: 4,
   },
   timestamp: {
-    color: colors.textMuted,
+    color: colors.textFaint,
     fontSize: typography.caption.fontSize,
   },
 });
