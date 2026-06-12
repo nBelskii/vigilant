@@ -14,6 +14,11 @@ export const colors = {
   brandStart: "#34d399",
   brandEnd: "#059669",
   selectionRing: "#8b5cf6",
+  calm: "#0ea5b8",
+  premium: "#f59e0b",
+  insightBg: "#eef0f9",
+  insightBorder: "#e0e4f5",
+  indigo: "#6366f1",
 } as const;
 
 export const categoryColors = {

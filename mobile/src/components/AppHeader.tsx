@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontSize: typography.title.fontSize,
-    fontWeight: typography.title.fontWeight,
+    fontSize: 20,
+    fontWeight: "600",
   },
   subtitle: {
     color: colors.textMuted,

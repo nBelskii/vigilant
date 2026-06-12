@@ -20,6 +20,12 @@ export const radius = {
 // Extra bottom padding so scroll content clears the floating tab bar.
 export const tabBarClearance = 100;
 
+// Height of the floating CustomTabBar pill itself (paddingVertical * 2 + icon
+// size), excluding safe-area inset. Combine with useSafeAreaInsets().bottom
+// for an exact clearance value.
+export const tabBarHeight = 64;
+export const tabBarBottomMargin = 12;
+
 export const typography = {
   display: { fontSize: 28, fontWeight: "800" as const },
   title: { fontSize: 24, fontWeight: "700" as const },

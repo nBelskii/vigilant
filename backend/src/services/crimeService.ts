@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { Incident } from "../types";
+import { getMockIncidents } from "../data/mockIncidents";
 
 // Edmonton Police Service "Occurrences CSDP" feed (powers the official Edmonton
 // Community Safety Map). Data is refreshed daily with a ~24-48h reporting delay,
@@ -30,23 +31,26 @@ export async function fetchCrimeIncidents(): Promise<Incident[]> {
 
     const data = (await res.json()) as { features?: { attributes: Record<string, any>; geometry?: { x: number; y: number } }[] };
 
-    return (data.features ?? [])
-      .filter((feature) => feature.geometry)
-      .map((feature) => {
-        const { attributes, geometry } = feature;
+    const features = (data.features ?? []).filter((feature) => feature.geometry);
+    if (features.length === 0) {
+      return getMockIncidents().filter((incident) => incident.source === "police");
+    }
 
-        return {
-          id: `eps-${attributes.OBJECTID}`,
-          type: attributes.Occurrence_Type_Group ?? attributes.Occurrence_Group ?? "Occurrence",
-          location: attributes.Intersection ?? "Edmonton",
-          lat: geometry?.y ?? null,
-          lng: geometry?.x ?? null,
-          timestamp: new Date(attributes.Reported_Date).toISOString(),
-          source: "police",
-        };
-      });
+    return features.map((feature) => {
+      const { attributes, geometry } = feature;
+
+      return {
+        id: `eps-${attributes.OBJECTID}`,
+        type: attributes.Occurrence_Type_Group ?? attributes.Occurrence_Group ?? "Occurrence",
+        location: attributes.Intersection ?? "Edmonton",
+        lat: geometry?.y ?? null,
+        lng: geometry?.x ?? null,
+        timestamp: new Date(attributes.Reported_Date).toISOString(),
+        source: "police",
+      };
+    });
   } catch (err) {
     console.error("fetchCrimeIncidents error:", err);
-    return [];
+    return getMockIncidents().filter((incident) => incident.source === "police");
   }
 }

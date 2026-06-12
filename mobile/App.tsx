@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -9,7 +9,7 @@ import { LoadingScreen } from "./src/components/LoadingScreen";
 import { useIncidentAlerts } from "./src/hooks/useIncidentAlerts";
 
 export default function App() {
-  useIncidentAlerts();
+  const { loading: incidentsLoading, error: incidentsError } = useIncidentAlerts();
 
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
@@ -18,12 +18,25 @@ export default function App() {
   const appOpacity = useRef(new Animated.Value(0)).current;
   const loadingOpacity = useRef(new Animated.Value(1)).current;
 
+  const ready = fontsLoaded && !incidentsLoading;
+
+  const triggerReady = useCallback(() => {
+    setAppReady((prev) => {
+      if (prev) return prev;
+      Animated.timing(appOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+      Animated.timing(loadingOpacity, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+      return true;
+    });
+  }, [appOpacity, loadingOpacity]);
+
   const onLayout = useCallback(() => {
-    if (!fontsLoaded || appReady) return;
-    setAppReady(true);
-    Animated.timing(appOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
-    Animated.timing(loadingOpacity, { toValue: 0, duration: 300, useNativeDriver: true }).start();
-  }, [appOpacity, appReady, fontsLoaded, loadingOpacity]);
+    if (!ready) return;
+    triggerReady();
+  }, [ready, triggerReady]);
+
+  useEffect(() => {
+    if (ready) triggerReady();
+  }, [ready, triggerReady]);
 
   return (
     <SafeAreaProvider>
@@ -35,7 +48,7 @@ export default function App() {
       )}
       {!appReady && (
         <Animated.View style={[styles.overlay, { opacity: loadingOpacity }]} pointerEvents="none">
-          <LoadingScreen />
+          <LoadingScreen message={incidentsError ?? undefined} />
         </Animated.View>
       )}
     </SafeAreaProvider>

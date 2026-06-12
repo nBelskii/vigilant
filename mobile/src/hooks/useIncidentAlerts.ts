@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchAlerts, fetchCrimeIncidents, fetchIncidents } from "../api/client";
-import { IncidentCategory } from "../types";
+import { Incident, IncidentCategory } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { distanceKm } from "../utils/geo";
 import { getNotificationPrefs } from "../utils/notificationPrefs";
@@ -23,16 +23,15 @@ const CATEGORY_LABELS: Record<IncidentCategory, string> = {
 // interval so it keeps working while the app is open in the background tab.
 export function useIncidentAlerts() {
   const initialized = useRef(false);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     const check = async () => {
       const prefs = await getNotificationPrefs();
-      if (!prefs.pushEnabled) return;
-
-      const granted = await requestNotificationPermissions();
-      if (!granted) return;
 
       const location = await getSavedLocation();
       const center = location ? { lat: location.lat, lng: location.lng } : EDMONTON_CENTER;
@@ -46,9 +45,22 @@ export function useIncidentAlerts() {
 
       if (cancelled) return;
 
+      if (incidentsResult.status === "fulfilled") {
+        setIncidents(incidentsResult.value);
+        setError(null);
+      } else {
+        setError("Unable to load nearby incidents");
+      }
+      setLoading(false);
+
       const incidents = incidentsResult.status === "fulfilled" ? incidentsResult.value : [];
       const crime = crimeResult.status === "fulfilled" ? crimeResult.value : [];
       const alerts = alertsResult.status === "fulfilled" ? alertsResult.value : [];
+
+      if (!prefs.pushEnabled) return;
+
+      const granted = await requestNotificationPermissions();
+      if (!granted) return;
 
       const nearbyIncidents = [...incidents, ...crime]
         .filter((i) => i.lat !== null && i.lng !== null)
@@ -105,4 +117,6 @@ export function useIncidentAlerts() {
       clearInterval(interval);
     };
   }, []);
+
+  return { incidents, loading, error };
 }

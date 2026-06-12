@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { Incident } from "../types";
+import { getMockIncidents } from "../data/mockIncidents";
 import { edmontonLocalToUTCISO } from "../utils/time";
 
 // Edmonton's crime occurrence dataset (xd4d-c7be) was retired from the open data
@@ -18,6 +19,10 @@ export async function fetchIncidents(): Promise<Incident[]> {
     }
 
     const data = (await res.json()) as Record<string, any>[];
+
+    if (data.length === 0) {
+      return getMockIncidents().filter((incident) => incident.source !== "police");
+    }
 
     return data.map((row, index) => {
       const lat = row.latitude ?? null;
@@ -42,6 +47,6 @@ export async function fetchIncidents(): Promise<Incident[]> {
     });
   } catch (err) {
     console.error("fetchIncidents error:", err);
-    return [];
+    return getMockIncidents().filter((incident) => incident.source !== "police");
   }
 }

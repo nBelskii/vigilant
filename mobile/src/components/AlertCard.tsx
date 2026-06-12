@@ -1,43 +1,57 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Alert } from "../types";
 import { severityColor } from "../utils/severity";
+import { formatRelativeTime } from "../utils/time";
 import { colors, radius, spacing, typography } from "../theme";
 
 interface AlertCardProps {
   alert: Alert;
+  icon?: keyof typeof Ionicons.glyphMap;
+  accentColor?: string;
+  onPress?: () => void;
+  // When true, omits the card's own background/shadow/radius so it can be
+  // dropped into an already-styled container (e.g. the map preview carousel).
+  compact?: boolean;
 }
 
-export function AlertCard({ alert }: AlertCardProps) {
-  const accent = severityColor(alert.severity);
-  const icon = alert.category === "weather" ? "thunderstorm" : "car";
+// Splits a location string like "Downtown, Edmonton" or "Anthony Henday Dr"
+// into a short neighbourhood-style label for the meta row.
+function neighbourhoodLabel(location: string): string {
+  const [first] = location.split(",");
+  return first.trim();
+}
+
+export function AlertCard({ alert, icon, accentColor, onPress, compact }: AlertCardProps) {
+  const accent = accentColor ?? severityColor(alert.severity);
+  const iconName = icon ?? (alert.category === "weather" ? "thunderstorm" : "car");
+
+  const Wrapper = onPress ? Pressable : View;
 
   return (
-    <View style={styles.card}>
-      <View style={[styles.iconWrap, { backgroundColor: `${accent}26` }]}>
-        <Ionicons name={icon} size={18} color={accent} />
+    <Wrapper style={[styles.card, compact && styles.cardCompact]} onPress={onPress}>
+      <View style={[styles.stripe, { backgroundColor: accent }]} />
+      <View style={[styles.iconWrap, { backgroundColor: `${accent}1f` }]}>
+        <Ionicons name={iconName} size={18} color={accent} />
       </View>
       <View style={styles.body}>
         <View style={styles.headerRow}>
           <Text style={styles.title} numberOfLines={2}>
             {alert.title}
           </Text>
-          <View style={[styles.severityBadge, { backgroundColor: accent }]}>
-            <Text style={styles.severityText}>{alert.severity}</Text>
-          </View>
+          <View style={[styles.severityDot, { backgroundColor: accent }]} />
         </View>
         <View style={styles.metaRow}>
           <Ionicons name="location-outline" size={12} color={colors.textMuted} />
           <Text style={styles.location} numberOfLines={1}>
-            {alert.location}
+            {neighbourhoodLabel(alert.location)}
           </Text>
+          <Text style={styles.dotSeparator}>·</Text>
+          <Text style={styles.timestamp}>{formatRelativeTime(alert.timestamp)}</Text>
         </View>
-        <Text style={styles.timestamp}>
-          {new Date(alert.timestamp).toLocaleString("en-CA", { timeZone: "America/Edmonton" })}
-        </Text>
       </View>
-    </View>
+    </Wrapper>
   );
 }
 
@@ -46,10 +60,35 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    overflow: "hidden",
     padding: spacing.md,
     marginBottom: spacing.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0f2a20",
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  cardCompact: {
+    backgroundColor: "transparent",
+    borderRadius: 0,
+    padding: 0,
+    margin: 0,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  stripe: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
   },
   iconWrap: {
     width: 36,
@@ -58,10 +97,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,
+    marginLeft: spacing.xs,
   },
-  body: {
-    flex: 1,
-  },
+  body: { flex: 1 },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -75,28 +113,23 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: spacing.sm,
   },
-  severityBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+  severityDot: {
+    width: 8,
+    height: 8,
     borderRadius: radius.full,
+    marginTop: 4,
   },
-  severityText: {
-    color: "#ffffff",
-    fontSize: typography.caption.fontSize,
-    fontWeight: "700",
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 2,
-  },
+  metaRow: { flexDirection: "row", alignItems: "center" },
   location: {
     color: colors.textMuted,
     fontSize: typography.caption.fontSize,
     marginLeft: 4,
+    flexShrink: 1,
   },
-  timestamp: {
+  dotSeparator: {
     color: colors.textFaint,
     fontSize: typography.caption.fontSize,
+    marginHorizontal: spacing.xs,
   },
+  timestamp: { color: colors.textFaint, fontSize: typography.caption.fontSize },
 });

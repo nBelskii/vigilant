@@ -3,7 +3,11 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
 
-export function LoadingScreen() {
+interface LoadingScreenProps {
+  message?: string;
+}
+
+export function LoadingScreen({ message }: LoadingScreenProps) {
   const scale = useRef(new Animated.Value(0.8)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(0)).current;
@@ -54,7 +58,7 @@ export function LoadingScreen() {
         </View>
       </Animated.View>
       <Animated.Text style={[styles.title, { opacity }]}>Nearby</Animated.Text>
-      <Animated.Text style={[styles.subtitle, { opacity }]}>Edmonton, AB</Animated.Text>
+      <Animated.Text style={[styles.subtitle, { opacity }]}>{message ?? "Edmonton, AB"}</Animated.Text>
     </View>
   );
 }

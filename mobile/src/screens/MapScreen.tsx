@@ -1,22 +1,35 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { fetchCrimeIncidents, fetchIncidents } from "../api/client";
-import { Incident } from "../types";
+import { Alert, Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
-import { categoryColors, colors } from "../theme";
+import { categoryColors, colors, spacing, tabBarClearance } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { getSavedLocation, SavedLocation } from "../utils/savedLocation";
-import { IncidentMarker } from "../components/IncidentMarker";
+import { AlertCard } from "../components/AlertCard";
+import { IncidentMarker, CATEGORY_ICONS } from "../components/IncidentMarker";
 import { SelectionRing } from "../components/SelectionRing";
 import { PulsingDot } from "../components/PulsingDot";
 import { MapLegend } from "../components/MapLegend";
 import { MapStyleSwitcher } from "../components/MapStyleSwitcher";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
 import { AppHeader } from "../components/AppHeader";
+
+const PREVIEW_LIMIT = 8;
+
+function incidentToPreviewAlert(incident: Incident): Alert {
+  return {
+    id: `${incident.source ?? "city"}-${incident.id}`,
+    title: incident.type,
+    severity: "",
+    location: incident.location,
+    timestamp: incident.timestamp,
+  };
+}
 
 const EDMONTON_REGION: Region = {
   latitude: 53.5461,
@@ -44,6 +57,7 @@ export function MapScreen() {
   const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
   const [markerSize, setMarkerSize] = useState(() => markerSizeForDelta(EDMONTON_REGION.latitudeDelta));
   const [trackChanges, setTrackChanges] = useState(true);
+  const [incidentsLoading, setIncidentsLoading] = useState(true);
   const mapRef = useRef<MapView>(null);
 
   const handleRegionChangeComplete = useCallback((region: Region) => {
@@ -62,13 +76,14 @@ export function MapScreen() {
   }, [trackChanges, markerSize]);
 
   useEffect(() => {
-    fetchIncidents()
-      .then(setIncidents)
-      .catch((err) => console.error("Failed to load incidents:", err));
-
-    fetchCrimeIncidents()
-      .then(setCrimeIncidents)
-      .catch((err) => console.error("Failed to load crime incidents:", err));
+    Promise.allSettled([
+      fetchIncidents()
+        .then(setIncidents)
+        .catch((err) => console.error("Failed to load incidents:", err)),
+      fetchCrimeIncidents()
+        .then(setCrimeIncidents)
+        .catch((err) => console.error("Failed to load crime incidents:", err)),
+    ]).finally(() => setIncidentsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -107,6 +122,10 @@ export function MapScreen() {
 
   const selectedIncident = visibleIncidents.find((incident) => incident.id === selectedIncidentId);
 
+  const previewIncidents = [...visibleIncidents]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, PREVIEW_LIMIT);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -121,6 +140,12 @@ export function MapScreen() {
         showsCompass={false}
         toolbarEnabled={false}
         onRegionChangeComplete={handleRegionChangeComplete}
+        onPress={(e) => {
+          // react-native-maps bubbles marker taps up to the MapView's onPress
+          // too; only clear the selection for taps on the bare map itself.
+          if (e.nativeEvent.action === "marker-press") return;
+          setSelectedIncidentId(null);
+        }}
       >
         {selectedIncident && (
           <Marker
@@ -193,11 +218,38 @@ export function MapScreen() {
         </View>
       </View>
 
+      {!selectedIncidentId && previewIncidents.length > 0 && (
+        <View style={styles.previewCarousel} pointerEvents="box-none">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            pointerEvents="box-none"
+            contentContainerStyle={styles.previewContent}
+          >
+            {previewIncidents.map((incident) => {
+              const category = categorizeIncident(incident.type, incident.source);
+              return (
+                <View key={`${incident.source ?? "city"}-${incident.id}`} style={styles.previewCard}>
+                  <AlertCard
+                    alert={incidentToPreviewAlert(incident)}
+                    icon={CATEGORY_ICONS[category]}
+                    accentColor={categoryColors[category]}
+                    onPress={() => setSelectedIncidentId(incident.id)}
+                    compact
+                  />
+                </View>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
       <IncidentDetailSheet
         incidents={visibleIncidents}
         selectedId={selectedIncidentId}
         onSelectId={setSelectedIncidentId}
         center={watchedLocation ? { lat: watchedLocation.lat, lng: watchedLocation.lng } : undefined}
+        loading={incidentsLoading}
       />
     </View>
   );
@@ -223,5 +275,26 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingHorizontal: 16,
     marginTop: 8,
+  },
+  previewCarousel: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: tabBarClearance,
+  },
+  previewContent: {
+    paddingHorizontal: spacing.md,
+  },
+  previewCard: {
+    width: 260,
+    marginRight: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: spacing.sm,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

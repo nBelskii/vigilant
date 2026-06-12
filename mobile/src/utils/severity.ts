@@ -17,7 +17,7 @@ export function severityColor(severity: string): string {
   }
 
   if (normalized.includes("low") || normalized.includes("minor")) {
-    return colors.success;
+    return colors.calm;
   }
 
   return colors.accent;
