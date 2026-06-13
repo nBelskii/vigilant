@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { fetchAlerts, fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Alert, Incident, IncidentCategory } from "../types";
@@ -12,6 +13,7 @@ import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 const EDMONTON_CENTER = { lat: 53.5461, lng: -113.4938 };
 
@@ -70,18 +72,18 @@ export function AlertsScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Alerts" subtitle={location ? `Within ${radiusKm.toFixed(1)} km of ${location.label}` : "Edmonton, AB"} />
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.primary} />}
       >
         <Text style={styles.sectionLabel}>In your area</Text>
         <View style={styles.statsRow}>
-          <StatCard label="Crime" value={String(counts.crime)} valueColor={colors.brandEnd} />
+          <StatCard label="Crime" value={String(counts.crime)} valueColor={THEME.colors.primary} />
           <StatCard label="Fire / Medical" value={String(counts.fire)} valueColor={colors.warning} />
           <StatCard label="Traffic" value={String(counts.traffic)} valueColor={colors.accent} />
-          <StatCard label="Other" value={String(counts.other)} valueColor={colors.textMuted} />
+          <StatCard label="Other" value={String(counts.other)} valueColor={THEME.colors.textSecondary} />
         </View>
 
         <Text style={styles.sectionLabel}>Nearby incidents</Text>
@@ -111,21 +113,21 @@ export function AlertsScreen() {
         onSelectId={setSelectedIncidentId}
         center={center}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: THEME.colors.background,
   },
   content: {
     paddingHorizontal: spacing.lg,
     paddingBottom: tabBarClearance,
   },
   sectionLabel: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
     textTransform: "uppercase",
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   empty: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
     textAlign: "center",
     marginTop: spacing.md,

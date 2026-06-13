@@ -5,7 +5,6 @@ import {
   Dimensions,
   PanResponder,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -17,7 +16,8 @@ import { categorizeIncident } from "../utils/categorize";
 import { distanceKm } from "../utils/geo";
 import { formatRelativeTime } from "../utils/time";
 import { CATEGORY_ICONS } from "./IncidentMarker";
-import { categoryColors, colors, radius, spacing, tabBarBottomMargin, tabBarHeight, typography } from "../theme";
+import { categoryColors, radius, spacing, tabBarBottomMargin, tabBarHeight, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 interface IncidentDetailSheetProps {
   incidents: Incident[];
@@ -37,6 +37,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 const DISMISS_THRESHOLD = 80;
 const SHEET_OFFSET = 400;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
+// Compact floating card: roughly 25-30% of the screen height.
+const SHEET_HEIGHT = SCREEN_HEIGHT * 0.28;
 
 export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center, loading }: IncidentDetailSheetProps) {
   const insets = useSafeAreaInsets();
@@ -71,7 +73,7 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
   ).current;
 
   // Slide the sheet up from below the screen whenever a new incident is
-  // selected (but not on prev/next navigation within an already-open sheet).
+  // selected.
   useEffect(() => {
     if (!selectedId) return;
     translateY.setValue(SHEET_OFFSET);
@@ -88,12 +90,11 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
   // Bottom offset so the sheet (and its content) clears the floating custom
   // tab bar + the device's safe-area inset exactly, on any iPhone.
   const bottomOffset = insets.bottom + tabBarHeight + tabBarBottomMargin + spacing.sm;
-  const maxSheetHeight = SCREEN_HEIGHT * 0.6;
 
   if (!incident || loading) {
     return (
       <Animated.View
-        style={[styles.sheetWrapper, { bottom: bottomOffset, transform: [{ translateY }] }]}
+        style={[styles.sheetWrapper, { bottom: bottomOffset, height: SHEET_HEIGHT, transform: [{ translateY }] }]}
       >
         <View style={styles.sheet}>
           <View {...panResponder.panHandlers}>
@@ -103,14 +104,13 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
               <View style={[styles.skeletonBlock, styles.skeletonBadge]} />
               <View style={styles.spacer} />
               <Pressable onPress={() => onSelectId(null)} hitSlop={8} style={styles.closeButton}>
-                <Ionicons name="close" size={20} color={colors.textMuted} />
+                <Ionicons name="close" size={20} color={THEME.colors.textSecondary} />
               </Pressable>
             </View>
             <View style={[styles.skeletonBlock, styles.skeletonTitle]} />
             <View style={[styles.skeletonBlock, styles.skeletonLineShort]} />
           </View>
           <View style={styles.divider} />
-          <View style={[styles.skeletonBlock, styles.skeletonLine]} />
           <View style={[styles.skeletonBlock, styles.skeletonLine]} />
           <View style={[styles.skeletonBlock, styles.skeletonCard]} />
         </View>
@@ -126,105 +126,72 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
     : null;
 
   return (
-    <Animated.View style={[styles.sheetWrapper, { bottom: bottomOffset, transform: [{ translateY }] }]}>
-      <View style={[styles.sheet, { maxHeight: maxSheetHeight }]}>
+    <Animated.View
+      style={[styles.sheetWrapper, { bottom: bottomOffset, height: SHEET_HEIGHT, transform: [{ translateY }] }]}
+    >
+      <View style={styles.sheet}>
         <View {...panResponder.panHandlers}>
           <View style={styles.grip} />
 
           <View style={styles.headerRow}>
             <View style={[styles.iconWrap, { backgroundColor: `${accentColor}1f` }]}>
-              <Ionicons name={CATEGORY_ICONS[category]} size={18} color={accentColor} />
+              <Ionicons name={CATEGORY_ICONS[category]} size={16} color={accentColor} />
             </View>
             <View style={[styles.badge, { backgroundColor: `${accentColor}1f` }]}>
               <Text style={[styles.badgeText, { color: accentColor }]}>{CATEGORY_LABELS[category]}</Text>
             </View>
             <View style={styles.spacer} />
             <Pressable onPress={() => onSelectId(null)} hitSlop={8} style={styles.closeButton}>
-              <Ionicons name="close" size={20} color={colors.textMuted} />
+              <Ionicons name="close" size={20} color={THEME.colors.textSecondary} />
             </Pressable>
           </View>
 
-          <Text style={styles.title}>{incident.type}</Text>
+          <Text style={styles.title} numberOfLines={1}>{incident.type}</Text>
           <Text style={styles.timestamp}>{formatRelativeTime(incident.timestamp, "Reported")}</Text>
         </View>
 
         <View style={styles.divider} />
 
-        <ScrollView
-          style={styles.scrollBody}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: spacing.lg }]}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.body}>
           <View style={styles.row}>
-            <Ionicons name="location-outline" size={14} color={colors.textMuted} style={styles.rowIcon} />
-            <Text style={styles.rowText}>{incident.location}</Text>
+            <Ionicons name="location-outline" size={14} color={THEME.colors.textSecondary} style={styles.rowIcon} />
+            <Text style={styles.rowText} numberOfLines={1}>{incident.location}</Text>
           </View>
 
           {distance !== null && (
             <View style={styles.row}>
-              <Ionicons name="navigate-outline" size={14} color={colors.textMuted} style={styles.rowIcon} />
+              <Ionicons name="navigate-outline" size={14} color={THEME.colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowText}>{distance.toFixed(1)} km from your watched area</Text>
             </View>
           )}
 
           {incident.source === "police" && (
             <View style={styles.row}>
-              <Ionicons name="shield-checkmark-outline" size={14} color={colors.textMuted} style={styles.rowIcon} />
+              <Ionicons name="shield-checkmark-outline" size={14} color={THEME.colors.textSecondary} style={styles.rowIcon} />
               <Text style={styles.rowText}>Source: Edmonton Police Service</Text>
             </View>
           )}
 
-          <View style={styles.insightsCard}>
-            <View style={styles.insightsBadge}>
-              <Ionicons name="sparkles" size={11} color={colors.indigo} />
-              <Text style={styles.insightsBadgeText}>Analytics</Text>
+          <Pressable
+            style={styles.insightsCard}
+            onPress={() =>
+              RNAlert.alert(
+                "NearBy Safety Index",
+                "Thanks for your interest! We are currently benchmarking Edmonton neighborhood safety data. This premium feature will be available in the next update."
+              )
+            }
+          >
+            <Ionicons name="shield-checkmark" size={16} color={THEME.colors.primary} style={styles.insightsIcon} />
+            <View style={styles.insightsTextWrap}>
+              <Text style={styles.insightsTitle}>NearBy Safety Index</Text>
+              <Text style={styles.insightsSubtitle}>School ratings, trends & more</Text>
             </View>
-
-            <View style={styles.insightsHeader}>
-              <Ionicons name="shield-checkmark" size={16} color={colors.indigo} />
-              <Text style={styles.insightsTitle}>Neighborhood Safety Insights</Text>
+            <View style={styles.insightsAction}>
+              <Ionicons name="lock-closed" size={12} color={THEME.colors.textOnPrimary} style={styles.insightsLockIcon} />
+              <Text style={styles.insightsActionText}>Unlock</Text>
             </View>
-            <Text style={styles.insightsSubtitle}>
-              A deeper look at this area to help you decide with confidence.
-            </Text>
-
-            <View style={styles.insightsStats}>
-              <View style={styles.insightsStatRow}>
-                <View style={styles.insightsStatIcon}>
-                  <Ionicons name="school-outline" size={16} color={colors.indigo} />
-                </View>
-                <Text style={styles.insightsStatLabel}>School Zone Safety Rating</Text>
-                <Text style={styles.insightsStatValue}>A+ · 9.2/10</Text>
-              </View>
-              <View style={styles.insightsStatRow}>
-                <View style={styles.insightsStatIcon}>
-                  <Ionicons name="stats-chart-outline" size={16} color={colors.indigo} />
-                </View>
-                <Text style={styles.insightsStatLabel}>30-Day Safety Trend</Text>
-                <Text style={styles.insightsStatValue}>Stable / Quiet Area</Text>
-              </View>
-              <View style={styles.insightsStatRow}>
-                <View style={styles.insightsStatIcon}>
-                  <Ionicons name="moon-outline" size={16} color={colors.indigo} />
-                </View>
-                <Text style={styles.insightsStatLabel}>Nighttime Safety Index</Text>
-                <Text style={styles.insightsStatValue}>94% Safe Hours</Text>
-              </View>
-            </View>
-
-            <Pressable
-              style={styles.upgradeButton}
-              onPress={() =>
-                RNAlert.alert(
-                  "Unlock Deep Neighborhood Analytics",
-                  "Thanks for your interest! We are currently benchmarking Edmonton neighborhood safety data. This premium feature will be available in the next update."
-                )
-              }
-            >
-              <Text style={styles.upgradeButtonText}>Unlock Deep Neighborhood Analytics</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
+          </Pressable>
+        </View>
       </View>
     </Animated.View>
   );
@@ -237,9 +204,10 @@ const styles = StyleSheet.create({
     right: spacing.md,
   },
   sheet: {
-    backgroundColor: colors.surfaceRaised,
+    flex: 1,
+    backgroundColor: THEME.colors.background,
     borderRadius: radius.xl,
-    padding: spacing.lg,
+    padding: spacing.md,
     shadowColor: "#0f2a20",
     shadowOpacity: 0.18,
     shadowRadius: 16,
@@ -251,25 +219,25 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: radius.full,
-    backgroundColor: colors.border,
-    marginBottom: spacing.sm,
+    backgroundColor: THEME.colors.border,
+    marginBottom: spacing.xs,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   iconWrap: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.sm,
   },
   badge: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
     borderRadius: radius.full,
   },
   badgeText: {
@@ -283,26 +251,24 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   title: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   timestamp: {
-    color: colors.textFaint,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   divider: {
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginBottom: spacing.sm,
+    borderTopColor: THEME.colors.border,
+    marginBottom: spacing.xs,
   },
-  scrollBody: {
-    flexGrow: 0,
-  },
-  scrollContent: {
-    flexGrow: 1,
+  body: {
+    flex: 1,
+    justifyContent: "center",
   },
   row: {
     flexDirection: "row",
@@ -315,99 +281,57 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
   },
   insightsCard: {
-    backgroundColor: colors.insightBg,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.secondary,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.insightBorder,
-    padding: spacing.md,
-    marginTop: spacing.md,
-    position: "relative",
+    padding: spacing.sm,
+    marginTop: spacing.sm,
   },
-  insightsBadge: {
-    position: "absolute",
-    top: spacing.sm,
-    right: spacing.sm,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    gap: 4,
-  },
-  insightsBadgeText: {
-    color: colors.indigo,
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  insightsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 4,
-    paddingRight: 80,
-  },
-  insightsTitle: {
-    color: colors.text,
-    fontSize: typography.subheading.fontSize,
-    fontWeight: typography.subheading.fontWeight,
-    marginLeft: spacing.xs,
-  },
-  insightsSubtitle: {
-    color: colors.textMuted,
-    fontSize: typography.caption.fontSize,
-    marginBottom: spacing.md,
-  },
-  insightsStats: {
-    opacity: 0.55,
-    marginBottom: spacing.md,
-  },
-  insightsStatRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: spacing.sm,
-  },
-  insightsStatIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.md,
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    justifyContent: "center",
+  insightsIcon: {
     marginRight: spacing.sm,
   },
-  insightsStatLabel: {
+  insightsTextWrap: {
     flex: 1,
-    color: colors.textMuted,
-    fontSize: typography.caption.fontSize,
   },
-  insightsStatValue: {
-    color: colors.text,
-    fontSize: typography.caption.fontSize,
-    fontWeight: "700",
-    marginLeft: spacing.sm,
-  },
-  upgradeButton: {
-    backgroundColor: colors.indigo,
-    borderRadius: radius.full,
-    paddingVertical: spacing.sm,
-    alignItems: "center",
-  },
-  upgradeButtonText: {
-    color: "#ffffff",
+  insightsTitle: {
+    color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
+  insightsSubtitle: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    marginTop: 1,
+  },
+  insightsAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.primary,
+    borderRadius: radius.full,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    marginLeft: spacing.sm,
+  },
+  insightsLockIcon: {
+    marginRight: 4,
+  },
+  insightsActionText: {
+    color: THEME.colors.textOnPrimary,
+    fontSize: typography.caption.fontSize,
+    fontWeight: "700",
+  },
   skeletonBlock: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.sm,
   },
   skeletonIcon: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: radius.md,
     marginRight: spacing.sm,
   },
@@ -433,7 +357,7 @@ const styles = StyleSheet.create({
   },
   skeletonCard: {
     width: "100%",
-    height: 96,
+    height: 64,
     borderRadius: radius.lg,
     marginTop: spacing.sm,
   },

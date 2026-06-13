@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { SettingsRow } from "../components/SettingsRow";
 import { getNotificationPrefs, setNotificationPrefs } from "../utils/notificationPrefs";
 import { requestNotificationPermissions } from "../utils/notifications";
-import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
+import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 export function SettingsScreen() {
   const navigation = useNavigation<any>();
@@ -50,10 +52,10 @@ export function SettingsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+          <Ionicons name="chevron-back" size={24} color={THEME.colors.textPrimary} />
         </Pressable>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.backButton} />
@@ -107,24 +109,24 @@ export function SettingsScreen() {
           <SettingsRow icon="log-out-outline" label="Sign Out" danger />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: THEME.colors.background,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: THEME.colors.border,
   },
   backButton: {
     width: 40,
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
     paddingBottom: tabBarClearance,
   },
   sectionLabel: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
     textTransform: "uppercase",
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   section: {
-    backgroundColor: colors.surface,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
     marginHorizontal: spacing.lg,
     overflow: "hidden",

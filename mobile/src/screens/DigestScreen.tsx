@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchIncidents } from "../api/client";
 import { Incident } from "../types";
 import { computeStats, groupByDay } from "../utils/digest";
@@ -7,6 +8,7 @@ import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
 import { AppHeader } from "../components/AppHeader";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 export function DigestScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -29,13 +31,13 @@ export function DigestScreen() {
 
   const changeColor =
     stats.changeVsLastWeek === null
-      ? colors.textMuted
+      ? THEME.colors.textSecondary
       : stats.changeVsLastWeek > 0
-      ? colors.danger
-      : colors.success;
+      ? THEME.colors.danger
+      : THEME.colors.primary;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Digest" subtitle="This week in Edmonton" />
       <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.statsRow}>
@@ -57,14 +59,14 @@ export function DigestScreen() {
         </View>
       ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: THEME.colors.background,
   },
   content: {
     padding: spacing.lg,
@@ -79,13 +81,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   dayLabel: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
     marginBottom: spacing.sm,
   },
   empty: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
     textAlign: "center",
     marginTop: spacing.xl,

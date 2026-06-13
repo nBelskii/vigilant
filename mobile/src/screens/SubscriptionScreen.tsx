@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 interface PlanFeature {
   icon: keyof typeof Ionicons.glyphMap;
@@ -24,10 +26,10 @@ export function SubscriptionScreen() {
   const [selected, setSelected] = useState<PlanId>("yearly");
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
+          <Ionicons name="chevron-back" size={24} color={THEME.colors.textPrimary} />
         </Pressable>
         <Text style={styles.headerTitle}>Nearby Pro</Text>
         <View style={styles.backButton} />
@@ -35,7 +37,7 @@ export function SubscriptionScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroIconWrap}>
-          <Ionicons name="shield-checkmark" size={32} color={colors.brandEnd} />
+          <Ionicons name="shield-checkmark" size={32} color={THEME.colors.primary} />
         </View>
         <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
         <Text style={styles.heroSubtitle}>Unlimited areas, instant alerts, and more.</Text>
@@ -48,7 +50,7 @@ export function SubscriptionScreen() {
             <Ionicons
               name={selected === "yearly" ? "radio-button-on" : "radio-button-off"}
               size={22}
-              color={selected === "yearly" ? colors.brandEnd : colors.textFaint}
+              color={selected === "yearly" ? THEME.colors.primary : THEME.colors.textSecondary}
             />
             <View style={styles.planTextWrap}>
               <Text style={styles.planLabel}>Annual</Text>
@@ -66,7 +68,7 @@ export function SubscriptionScreen() {
             <Ionicons
               name={selected === "monthly" ? "radio-button-on" : "radio-button-off"}
               size={22}
-              color={selected === "monthly" ? colors.brandEnd : colors.textFaint}
+              color={selected === "monthly" ? THEME.colors.primary : THEME.colors.textSecondary}
             />
             <View style={styles.planTextWrap}>
               <Text style={styles.planLabel}>Monthly</Text>
@@ -78,7 +80,7 @@ export function SubscriptionScreen() {
         <View style={styles.section}>
           {FEATURES.map((feature) => (
             <View key={feature.label} style={styles.featureRow}>
-              <Ionicons name={feature.icon} size={18} color={colors.brandEnd} style={styles.featureIcon} />
+              <Ionicons name={feature.icon} size={18} color={THEME.colors.primary} style={styles.featureIcon} />
               <Text style={styles.featureLabel}>{feature.label}</Text>
             </View>
           ))}
@@ -93,24 +95,24 @@ export function SubscriptionScreen() {
           This is a preview of Nearby Pro. Payments aren't enabled yet.
         </Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: THEME.colors.background,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: THEME.colors.border,
   },
   backButton: {
     width: 40,
@@ -119,7 +121,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
@@ -132,20 +134,20 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: radius.xl,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.secondary,
     alignItems: "center",
     justifyContent: "center",
     marginTop: spacing.lg,
     marginBottom: spacing.md,
   },
   heroTitle: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
     textAlign: "center",
   },
   heroSubtitle: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
     textAlign: "center",
     marginTop: spacing.xs,
@@ -159,47 +161,47 @@ const styles = StyleSheet.create({
   planCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     padding: spacing.md,
   },
   planCardActive: {
-    borderColor: colors.brandEnd,
-    backgroundColor: colors.surfaceRaised,
+    borderColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.secondary,
   },
   planTextWrap: {
     flex: 1,
     marginLeft: spacing.md,
   },
   planLabel: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
   planPeriod: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     marginTop: 2,
   },
   savingsBadge: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.secondary,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
   savingsBadgeText: {
-    color: colors.brandEnd,
+    color: THEME.colors.primary,
     fontSize: 11,
     fontWeight: "700",
   },
   section: {
     width: "100%",
-    backgroundColor: colors.surface,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
@@ -212,23 +214,23 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   featureLabel: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
   },
   subscribeButton: {
     width: "100%",
-    backgroundColor: colors.brandEnd,
+    backgroundColor: THEME.colors.primary,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     alignItems: "center",
   },
   subscribeLabel: {
-    color: "#ffffff",
+    color: THEME.colors.textOnPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
   disclaimer: {
-    color: colors.textFaint,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     textAlign: "center",
     marginTop: spacing.md,

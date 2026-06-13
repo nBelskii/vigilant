@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing, typography } from "../theme";
+import { radius, spacing, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 interface StatCardProps {
   label: string;
@@ -20,22 +21,22 @@ export function StatCard({ label, value, valueColor }: StatCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.sm,
     alignItems: "center",
   },
   value: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
     marginBottom: spacing.xs,
   },
   label: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     textAlign: "center",
   },

@@ -2,19 +2,21 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AppHeader } from "../components/AppHeader";
 import { SettingsRow } from "../components/SettingsRow";
-import { colors, radius, spacing, tabBarClearance, typography } from "../theme";
+import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Profile" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.avatar}>
-          <Ionicons name="person" size={36} color={colors.brandEnd} />
+          <Ionicons name="person" size={36} color={THEME.colors.primary} />
         </View>
 
         <Text style={styles.guestTitle}>You're browsing as a guest</Text>
@@ -26,13 +28,13 @@ export function ProfileScreen() {
 
         <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCard}>
           <View style={styles.proIconWrap}>
-            <Ionicons name="shield-checkmark" size={22} color={colors.brandEnd} />
+            <Ionicons name="shield-checkmark" size={22} color={THEME.colors.primary} />
           </View>
           <View style={styles.proTextWrap}>
             <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
             <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.textFaint} />
+          <Ionicons name="chevron-forward" size={20} color={THEME.colors.textSecondary} />
         </Pressable>
 
         <Text style={styles.sectionLabel}>Preferences</Text>
@@ -54,65 +56,67 @@ export function ProfileScreen() {
           <SettingsRow icon="help-circle-outline" label="Help & Support" showChevron />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: THEME.colors.background,
   },
   content: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: tabBarClearance,
-    alignItems: "center",
   },
   avatar: {
     width: 84,
     height: 84,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
     marginTop: spacing.xl,
     marginBottom: spacing.md,
   },
   guestTitle: {
-    color: colors.text,
+    alignSelf: "center",
+    color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
   guestSubtitle: {
-    color: colors.textMuted,
+    alignSelf: "center",
+    color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
     textAlign: "center",
     marginTop: spacing.xs,
     marginBottom: spacing.lg,
-    paddingHorizontal: spacing.xl,
   },
   signInButton: {
-    width: "92%",
+    width: "100%",
     paddingVertical: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: colors.brandEnd,
+    backgroundColor: THEME.colors.primary,
     alignItems: "center",
     marginBottom: spacing.lg,
   },
   signInLabel: {
-    color: "#ffffff",
+    color: THEME.colors.textOnPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
   proCard: {
     flexDirection: "row",
     alignItems: "center",
-    width: "92%",
-    backgroundColor: colors.surface,
+    width: "100%",
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.secondary,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,
@@ -129,30 +133,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   proTitle: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
   },
   proSubtitle: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     marginTop: 2,
   },
   sectionLabel: {
-    alignSelf: "flex-start",
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginLeft: spacing.lg,
     marginBottom: spacing.sm,
     marginTop: spacing.lg,
   },
   section: {
-    backgroundColor: colors.surface,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
-    width: "92%",
+    width: "100%",
     overflow: "hidden",
   },
 });

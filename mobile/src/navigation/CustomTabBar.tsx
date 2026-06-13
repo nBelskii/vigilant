@@ -1,17 +1,27 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
-import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radius } from "../theme";
+import { radius, spacing, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
-const ICONS: Record<string, { focused: keyof typeof Ionicons.glyphMap; unfocused: keyof typeof Ionicons.glyphMap }> = {
-  Home: { focused: "home", unfocused: "home-outline" },
-  Map: { focused: "map", unfocused: "map-outline" },
-  Digest: { focused: "calendar", unfocused: "calendar-outline" },
-  Alerts: { focused: "warning", unfocused: "warning-outline" },
-  Profile: { focused: "person-circle", unfocused: "person-circle-outline" },
+const AnimatedIcon = Animated.createAnimatedComponent(FontAwesome6);
+
+const ICONS: Record<string, keyof typeof FontAwesome6.glyphMap> = {
+  Dashboard: "house",
+  Map: "map",
+  Alerts: "bell",
+  Digest: "chart-simple",
+  Profile: "user",
+};
+
+const LABELS: Record<string, string> = {
+  Dashboard: "Dashboard",
+  Map: "Map",
+  Alerts: "Alerts",
+  Digest: "Digest",
+  Profile: "Profile",
 };
 
 interface TabIconProps {
@@ -22,29 +32,58 @@ interface TabIconProps {
 
 function TabIcon({ name, isFocused, onPress }: TabIconProps) {
   const icon = ICONS[name];
+  const label = LABELS[name];
   const progress = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+  const ripple = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.spring(progress, {
       toValue: isFocused ? 1 : 0,
-      friction: 6,
-      tension: 80,
-      useNativeDriver: true,
+      friction: 7,
+      tension: 90,
+      useNativeDriver: false,
     }).start();
   }, [isFocused, progress]);
 
-  const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] });
+  const handlePress = () => {
+    ripple.setValue(0);
+    Animated.timing(ripple, { toValue: 1, duration: 420, useNativeDriver: false }).start();
+    onPress();
+  };
+
+  const inactiveOpacity = progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
+  const activeOpacity = progress;
+  const iconScale = progress.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] });
+  const labelOpacity = progress;
+  const labelTranslate = progress.interpolate({ inputRange: [0, 1], outputRange: [6, 0] });
+  const rippleScale = ripple.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1.8] });
+  const rippleOpacity = ripple.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0] });
 
   return (
-    <Pressable onPress={onPress} style={styles.item} hitSlop={6}>
-      <View style={styles.pillSlot}>
-        <Animated.View style={[styles.pillBase, { opacity: progress, transform: [{ scale }] }]} />
-        <Ionicons
-          name={isFocused ? icon.focused : icon.unfocused}
-          size={22}
-          color={isFocused ? "#ffffff" : colors.textMuted}
+    <Pressable onPress={handlePress} style={styles.item} hitSlop={8}>
+      <View style={styles.iconSlot}>
+        <Animated.View style={[styles.ripple, { opacity: rippleOpacity, transform: [{ scale: rippleScale }] }]} />
+        <AnimatedIcon
+          name={icon}
+          iconStyle="regular"
+          size={20}
+          color={THEME.colors.textSecondary}
+          style={{ opacity: inactiveOpacity, position: "absolute" }}
+        />
+        <AnimatedIcon
+          name={icon}
+          iconStyle="solid"
+          size={20}
+          color={THEME.colors.primary}
+          style={{ opacity: activeOpacity, transform: [{ scale: iconScale }] }}
         />
       </View>
+      <Animated.Text
+        style={[styles.label, { opacity: labelOpacity, transform: [{ translateY: labelTranslate }] }]}
+        numberOfLines={1}
+      >
+        {label}
+      </Animated.Text>
     </Pressable>
   );
 }
@@ -53,8 +92,8 @@ export function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.wrapper, { bottom: insets.bottom + 12 }]} pointerEvents="box-none">
-      <BlurView intensity={80} tint="light" style={styles.bar}>
+    <View style={[styles.wrapper, { bottom: insets.bottom + 2 }]} pointerEvents="box-none">
+      <View style={styles.bar}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
 
@@ -67,7 +106,7 @@ export function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 
           return <TabIcon key={route.key} name={route.name} isFocused={isFocused} onPress={onPress} />;
         })}
-      </BlurView>
+      </View>
     </View>
   );
 }
@@ -83,35 +122,43 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     borderRadius: radius.xl,
-    overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.8)",
-    paddingVertical: 10,
+    borderColor: THEME.colors.secondary,
+    paddingTop: 14,
+    paddingBottom: 10,
     paddingHorizontal: 10,
     justifyContent: "space-between",
-    backgroundColor: "rgba(255,255,255,0.78)",
-    shadowColor: "#000000",
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    backgroundColor: "rgba(255,255,255,0.94)",
+    shadowColor: THEME.colors.primary,
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 10,
   },
   item: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
-  pillSlot: {
+  iconSlot: {
     width: 44,
-    height: 44,
+    height: 22,
     alignItems: "center",
     justifyContent: "center",
   },
-  pillBase: {
+  ripple: {
     position: "absolute",
-    width: 44,
-    height: 44,
-    borderRadius: radius.lg,
-    backgroundColor: colors.brandEnd,
+    top: -7,
+    left: 4,
+    width: 36,
+    height: 36,
+    borderRadius: radius.full,
+    backgroundColor: "rgba(0, 200, 83, 0.18)",
+  },
+  label: {
+    marginTop: spacing.xs,
+    fontSize: typography.caption.fontSize - 2,
+    fontWeight: "700",
+    color: THEME.colors.primary,
   },
 });

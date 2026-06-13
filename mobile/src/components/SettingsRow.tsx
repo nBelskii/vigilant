@@ -1,7 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, radius, spacing, typography } from "../theme";
+import { radius, spacing, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 interface SettingsRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -29,7 +30,7 @@ export function SettingsRow({
   return (
     <Pressable style={styles.row} onPress={onPress} disabled={!onPress && !isSwitch}>
       <View style={[styles.iconWrap, danger && styles.iconWrapDanger]}>
-        <Ionicons name={icon} size={18} color={danger ? colors.danger : colors.text} />
+        <Ionicons name={icon} size={18} color={danger ? THEME.colors.danger : THEME.colors.textPrimary} />
       </View>
       <View style={styles.textWrap}>
         <Text style={[styles.label, danger && styles.labelDanger]}>{label}</Text>
@@ -39,11 +40,11 @@ export function SettingsRow({
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: colors.border, true: colors.brandEnd }}
-          thumbColor={colors.text}
+          trackColor={{ false: THEME.colors.border, true: THEME.colors.primary }}
+          thumbColor={THEME.colors.textOnPrimary}
         />
       )}
-      {showChevron && <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />}
+      {showChevron && <Ionicons name="chevron-forward" size={18} color={THEME.colors.textSecondary} />}
     </Pressable>
   );
 }
@@ -59,27 +60,27 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.sm,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: THEME.colors.surface,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,
   },
   iconWrapDanger: {
-    backgroundColor: "rgba(255,71,87,0.12)",
+    backgroundColor: "rgba(255,59,48,0.12)",
   },
   textWrap: {
     flex: 1,
   },
   label: {
-    color: colors.text,
+    color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "600",
   },
   labelDanger: {
-    color: colors.danger,
+    color: THEME.colors.danger,
   },
   description: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     marginTop: 2,
   },

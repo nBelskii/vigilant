@@ -2,7 +2,8 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors, radius, spacing, typography } from "../theme";
+import { radius, spacing, typography } from "../theme";
+import { THEME } from "../theme/theme";
 
 interface AppHeaderProps {
   title: string;
@@ -16,7 +17,7 @@ export function AppHeader({ title, subtitle, transparent }: AppHeaderProps) {
   return (
     <View style={[styles.container, { paddingTop: insets.top + spacing.sm }, transparent && styles.transparent]}>
       <View style={styles.logoDot}>
-        <Ionicons name="location" size={16} color="#ffffff" />
+        <Ionicons name="location" size={16} color={THEME.colors.textOnPrimary} />
       </View>
       <View style={[styles.titleBlock, transparent && styles.titleBlockFloating]}>
         <Text style={styles.title} numberOfLines={1}>{title}</Text>
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.md,
-    backgroundColor: colors.brandEnd,
+    backgroundColor: THEME.colors.primary,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.sm,
@@ -59,18 +60,18 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: "rgba(255,255,255,0.85)",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: THEME.colors.border,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
   title: {
-    color: colors.text,
-    fontSize: 20,
+    color: THEME.colors.textPrimary,
+    fontSize: 18,
     fontWeight: "600",
   },
   subtitle: {
-    color: colors.textMuted,
+    color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     marginTop: 1,
   },

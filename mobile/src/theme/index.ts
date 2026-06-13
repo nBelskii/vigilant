@@ -1,4 +1,7 @@
 export * from "./colors";
+export * from "./responsive";
+
+import { moderateScale } from "./responsive";
 
 export const spacing = {
   xs: 4,
@@ -27,10 +30,10 @@ export const tabBarHeight = 64;
 export const tabBarBottomMargin = 12;
 
 export const typography = {
-  display: { fontSize: 28, fontWeight: "800" as const },
-  title: { fontSize: 24, fontWeight: "700" as const },
-  heading: { fontSize: 18, fontWeight: "600" as const },
-  subheading: { fontSize: 15, fontWeight: "600" as const },
-  body: { fontSize: 14, fontWeight: "400" as const },
-  caption: { fontSize: 12, fontWeight: "400" as const },
+  display: { fontSize: moderateScale(28), fontWeight: "800" as const },
+  title: { fontSize: moderateScale(24), fontWeight: "700" as const },
+  heading: { fontSize: moderateScale(18), fontWeight: "600" as const },
+  subheading: { fontSize: moderateScale(15), fontWeight: "600" as const },
+  body: { fontSize: moderateScale(14), fontWeight: "400" as const },
+  caption: { fontSize: moderateScale(12), fontWeight: "400" as const },
 };
