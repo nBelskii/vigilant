@@ -5,6 +5,7 @@ import incidentsRouter from "./routes/incidents";
 import crimeRouter from "./routes/crime";
 import alertsRouter from "./routes/alerts";
 import airqualityRouter from "./routes/airquality";
+import socialRouter from "./routes/social";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/api/incidents", incidentsRouter);
 app.use("/api/crime", crimeRouter);
 app.use("/api/alerts", alertsRouter);
 app.use("/api/airquality", airqualityRouter);
+app.use("/api/social", socialRouter);
 
 app.listen(PORT, () => {
   console.log(`Nearby backend listening on port ${PORT}`);

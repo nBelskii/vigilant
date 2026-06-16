@@ -7,6 +7,7 @@ export const CACHE_KEYS = {
   crime: "crime",
   alerts: "alerts",
   airquality: "airquality",
+  social: "social",
 } as const;
 
 // Per-source cache lifetimes, tuned to how often each upstream source actually
@@ -16,4 +17,5 @@ export const CACHE_TTL = {
   crime: 600, // EPS occurrences - reported with a 24-48h delay, updates a few times a day
   alerts: 90, // 511 traffic + weather alerts - near real-time
   airquality: 600, // Environment Canada AQHI - updates hourly
+  social: 1800, // EPS media releases RSS - new posts a few times a day
 } as const;

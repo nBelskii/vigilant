@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { SettingsRow } from "../components/SettingsRow";
 import { getNotificationPrefs, setNotificationPrefs } from "../utils/notificationPrefs";
 import { requestNotificationPermissions } from "../utils/notifications";
+import { getProStatus, setProStatus } from "../utils/proStatus";
 import { radius, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -15,6 +16,7 @@ export function SettingsScreen() {
   const [crimeAlerts, setCrimeAlerts] = useState(true);
   const [trafficAlerts, setTrafficAlerts] = useState(true);
   const [metric, setMetric] = useState(true);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     getNotificationPrefs().then((prefs) => {
@@ -22,7 +24,13 @@ export function SettingsScreen() {
       setCrimeAlerts(prefs.crimeAlerts);
       setTrafficAlerts(prefs.trafficAlerts);
     });
+    getProStatus().then(setIsPro);
   }, []);
+
+  const handleProToggle = async (next: boolean) => {
+    setIsPro(next);
+    await setProStatus(next);
+  };
 
   const updatePrefs = (next: { pushEnabled: boolean; crimeAlerts: boolean; trafficAlerts: boolean }) => {
     setNotificationPrefs(next);
@@ -107,6 +115,17 @@ export function SettingsScreen() {
         <Text style={styles.sectionLabel}>Account</Text>
         <View style={styles.section}>
           <SettingsRow icon="log-out-outline" label="Sign Out" danger />
+        </View>
+
+        <Text style={styles.sectionLabel}>Developer</Text>
+        <View style={styles.section}>
+          <SettingsRow
+            icon="flask-outline"
+            label="Simulate Nearby Pro"
+            description="Preview Pro features before payments are enabled"
+            value={isPro}
+            onValueChange={handleProToggle}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

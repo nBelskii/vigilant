@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Alert as RNAlert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getProStatus, setProStatus } from "../utils/proStatus";
 import { radius, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -12,10 +13,12 @@ interface PlanFeature {
 }
 
 const FEATURES: PlanFeature[] = [
-  { icon: "infinite", label: "Unlimited watched areas" },
-  { icon: "notifications", label: "Real-time push alerts" },
+  { icon: "infinite", label: "Unlimited watched areas (home, work, family)" },
+  { icon: "flash", label: "Priority real-time alerts" },
+  { icon: "shield-checkmark", label: "NearBy Safety Index for any address" },
+  { icon: "leaf", label: "Air quality & weather alerts for your areas" },
+  { icon: "time", label: "Full incident history & search" },
   { icon: "map", label: "All map skins" },
-  { icon: "stats-chart", label: "Crime trend insights" },
   { icon: "ban", label: "No ads" },
 ];
 
@@ -24,6 +27,36 @@ type PlanId = "monthly" | "yearly";
 export function SubscriptionScreen() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<PlanId>("yearly");
+  const [isPro, setIsPro] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      getProStatus().then(setIsPro);
+    }, [])
+  );
+
+  const handleSubscribe = async () => {
+    await setProStatus(true);
+    setIsPro(true);
+    RNAlert.alert(
+      "Welcome to Nearby Pro",
+      "Unlimited watch areas, the NearBy Safety Index, air quality alerts, and priority push are now unlocked."
+    );
+  };
+
+  const handleManage = () => {
+    RNAlert.alert("Manage subscription", "Turn off this preview of Nearby Pro?", [
+      { text: "Keep Pro", style: "cancel" },
+      {
+        text: "Turn off",
+        style: "destructive",
+        onPress: async () => {
+          await setProStatus(false);
+          setIsPro(false);
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -86,14 +119,28 @@ export function SubscriptionScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.subscribeButton}>
-          <Text style={styles.subscribeLabel}>
-            {selected === "yearly" ? "Start Pro — $49.99/yr" : "Start Pro — $6.99/mo"}
-          </Text>
-        </Pressable>
-        <Text style={styles.disclaimer}>
-          This is a preview of Nearby Pro. Payments aren't enabled yet.
-        </Text>
+        {isPro ? (
+          <>
+            <View style={[styles.subscribeButton, styles.subscribeButtonActive]}>
+              <Ionicons name="checkmark-circle" size={18} color={THEME.colors.primary} style={styles.activeIcon} />
+              <Text style={[styles.subscribeLabel, styles.subscribeLabelActive]}>You're on Nearby Pro</Text>
+            </View>
+            <Pressable onPress={handleManage}>
+              <Text style={styles.manageLink}>Manage subscription</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Pressable style={styles.subscribeButton} onPress={handleSubscribe}>
+              <Text style={styles.subscribeLabel}>
+                {selected === "yearly" ? "Start Pro — $49.99/yr" : "Start Pro — $6.99/mo"}
+              </Text>
+            </Pressable>
+            <Text style={styles.disclaimer}>
+              This is a preview of Nearby Pro. No real payment will be charged yet.
+            </Text>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -219,15 +266,35 @@ const styles = StyleSheet.create({
   },
   subscribeButton: {
     width: "100%",
+    flexDirection: "row",
     backgroundColor: THEME.colors.primary,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     alignItems: "center",
+    justifyContent: "center",
+  },
+  subscribeButtonActive: {
+    backgroundColor: THEME.colors.secondary,
+    borderWidth: 1.5,
+    borderColor: THEME.colors.primary,
+  },
+  activeIcon: {
+    marginRight: spacing.xs,
   },
   subscribeLabel: {
     color: THEME.colors.textOnPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
+  },
+  subscribeLabelActive: {
+    color: THEME.colors.primary,
+  },
+  manageLink: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    fontWeight: "700",
+    textAlign: "center",
+    marginTop: spacing.md,
   },
   disclaimer: {
     color: THEME.colors.textSecondary,

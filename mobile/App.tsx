@@ -4,9 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { LoadingScreen } from "./src/components/LoadingScreen";
 import { useIncidentAlerts } from "./src/hooks/useIncidentAlerts";
+import { navigateToIncident } from "./src/navigation/navigationRef";
 
 export default function App() {
   const { loading: incidentsLoading, error: incidentsError } = useIncidentAlerts();
@@ -37,6 +39,22 @@ export default function App() {
   useEffect(() => {
     if (ready) triggerReady();
   }, [ready, triggerReady]);
+
+  // Tapping an incident push notification jumps straight to its location on
+  // the Map tab, so the alert feels actionable instead of just informational.
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as
+        | { incidentId?: string; lat?: number; lng?: number; source?: string }
+        | undefined;
+
+      if (data?.incidentId && typeof data.lat === "number" && typeof data.lng === "number") {
+        navigateToIncident({ id: data.incidentId, lat: data.lat, lng: data.lng, source: data.source });
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   return (
     <SafeAreaProvider>

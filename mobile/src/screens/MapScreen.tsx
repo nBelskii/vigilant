@@ -1,18 +1,28 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert as RNAlert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import * as Location from "expo-location";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { fetchCrimeIncidents, fetchIncidents } from "../api/client";
+import { fetchCrimeIncidents, fetchIncidents, fetchSocialIncidents } from "../api/client";
 import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { categoryColors, radius, spacing, tabBarBottomMargin, tabBarHeight, typography } from "../theme";
 import { THEME } from "../theme/theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
 import { GeocodeResult, reverseGeocode } from "../utils/geo";
-import { DEFAULT_RADIUS_KM, getSavedLocation, SavedLocation, setSavedLocation } from "../utils/savedLocation";
+import {
+  addWatchedZone,
+  DEFAULT_RADIUS_KM,
+  FREE_ZONE_LIMIT,
+  getWatchedZones,
+  removeWatchedZone,
+  SavedLocation,
+  updateWatchedZone,
+  WatchedZone,
+} from "../utils/savedLocation";
+import { getProStatus } from "../utils/proStatus";
 import { IncidentMarker } from "../components/IncidentMarker";
 import { SelectionRing } from "../components/SelectionRing";
 import { MapLegend } from "../components/MapLegend";
@@ -42,14 +52,28 @@ function markerSizeForDelta(latitudeDelta: number): number {
   return 38;
 }
 
+interface MapScreenParams {
+  focusIncidentId?: string;
+  focusLat?: number;
+  focusLng?: number;
+  focusSource?: string | null;
+  focusTs?: number;
+}
+
 export function MapScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
+  const route = useRoute();
+  const params = route.params as MapScreenParams | undefined;
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
+  const [socialIncidents, setSocialIncidents] = useState<Incident[]>([]);
   const [showCrime, setShowCrime] = useState(true);
   const [mapSkin, setMapSkin] = useState<MapSkin>(MAP_SKINS[0]);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
-  const [watchedLocation, setWatchedLocation] = useState<SavedLocation | null>(null);
+  const [zones, setZones] = useState<WatchedZone[]>([]);
+  const [activeZoneId, setActiveZoneId] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
   const [markerSize, setMarkerSize] = useState(() => markerSizeForDelta(EDMONTON_REGION.latitudeDelta));
   const [trackChanges, setTrackChanges] = useState(true);
   const [incidentsLoading, setIncidentsLoading] = useState(true);
@@ -60,7 +84,7 @@ export function MapScreen() {
   const [draftRadiusM, setDraftRadiusM] = useState(1000);
   const [savingZone, setSavingZone] = useState(false);
   const mapRef = useRef<MapView>(null);
-  const watchedLocationRef = useRef<SavedLocation | null>(null);
+  const zonesRef = useRef<WatchedZone[]>([]);
   const mapCenterRef = useRef({ lat: EDMONTON_REGION.latitude, lng: EDMONTON_REGION.longitude });
 
   const handleRegionChangeComplete = useCallback((region: Region) => {
@@ -87,6 +111,9 @@ export function MapScreen() {
       fetchCrimeIncidents()
         .then(setCrimeIncidents)
         .catch((err) => console.error("Failed to load crime incidents:", err)),
+      fetchSocialIncidents()
+        .then(setSocialIncidents)
+        .catch((err) => console.error("Failed to load social incidents:", err)),
     ]).finally(() => setIncidentsLoading(false));
   }, []);
 
@@ -99,7 +126,7 @@ export function MapScreen() {
 
       const location = await Location.getCurrentPositionAsync({});
 
-      if (!watchedLocationRef.current) {
+      if (zonesRef.current.length === 0) {
         mapRef.current?.animateToRegion(
           {
             latitude: location.coords.latitude,
@@ -115,15 +142,17 @@ export function MapScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      getSavedLocation().then((saved) => {
-        watchedLocationRef.current = saved;
-        setWatchedLocation(saved);
-        if (saved) {
-          const span = Math.max(0.02, (saved.radiusKm / 111) * 2.6);
+      Promise.all([getWatchedZones(), getProStatus()]).then(([loadedZones, pro]) => {
+        zonesRef.current = loadedZones;
+        setZones(loadedZones);
+        setIsPro(pro);
+        const primary = loadedZones[0];
+        if (primary) {
+          const span = Math.max(0.02, (primary.radiusKm / 111) * 2.6);
           mapRef.current?.animateToRegion(
             {
-              latitude: saved.lat,
-              longitude: saved.lng,
+              latitude: primary.lat,
+              longitude: primary.lng,
               latitudeDelta: span,
               longitudeDelta: span,
             },
@@ -134,17 +163,51 @@ export function MapScreen() {
     }, [])
   );
 
-  const visibleIncidents = (showCrime ? [...incidents, ...crimeIncidents] : incidents).filter(
+  // Jump straight to an incident when arriving from a push notification tap:
+  // center the map on it, open its detail sheet, and clear the params so
+  // re-focusing the tab doesn't repeat the jump.
+  useEffect(() => {
+    if (!params?.focusTs || params.focusLat === undefined || params.focusLng === undefined) return;
+
+    setShowCrime(true);
+    setWatchZoneOpen(false);
+    setPickingOnMap(false);
+    setSelectedIncidentId(params.focusIncidentId ?? null);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: params.focusLat,
+        longitude: params.focusLng,
+        latitudeDelta: USER_LOCATION_DELTA,
+        longitudeDelta: USER_LOCATION_DELTA,
+      },
+      500
+    );
+    navigation.setParams({ focusTs: undefined } as never);
+  }, [params?.focusTs, params?.focusLat, params?.focusLng, params?.focusIncidentId, navigation]);
+
+  const visibleIncidents = (showCrime ? [...incidents, ...crimeIncidents, ...socialIncidents] : incidents).filter(
     (incident) => incident.lat !== null && incident.lng !== null
   );
 
   const selectedIncident = visibleIncidents.find((incident) => incident.id === selectedIncidentId);
 
+  const loadZoneIntoDraft = (zone: WatchedZone) => {
+    setDraftCenter({ lat: zone.lat, lng: zone.lng });
+    setDraftLabel(zone.label);
+    setDraftRadiusM(clampZoneRadius(zone.radiusKm * 1000));
+  };
+
   const handleOpenWatchZone = () => {
-    const base = watchedLocationRef.current;
-    setDraftCenter(base ? { lat: base.lat, lng: base.lng } : { ...mapCenterRef.current });
-    setDraftLabel(base?.label ?? null);
-    setDraftRadiusM(clampZoneRadius((base?.radiusKm ?? DEFAULT_RADIUS_KM) * 1000));
+    const primary = zones[0];
+    if (primary) {
+      loadZoneIntoDraft(primary);
+      setActiveZoneId(primary.id);
+    } else {
+      setDraftCenter({ ...mapCenterRef.current });
+      setDraftLabel(null);
+      setDraftRadiusM(clampZoneRadius(DEFAULT_RADIUS_KM * 1000));
+      setActiveZoneId(null);
+    }
     setPickingOnMap(false);
     setSelectedIncidentId(null);
     setWatchZoneOpen(true);
@@ -153,6 +216,59 @@ export function MapScreen() {
   const handleCloseWatchZone = () => {
     setWatchZoneOpen(false);
     setPickingOnMap(false);
+  };
+
+  const canAddZone = isPro || zones.length < FREE_ZONE_LIMIT;
+
+  const handleUpsell = () => {
+    RNAlert.alert(
+      "Multiple Watch Zones is a Pro feature",
+      "Upgrade to Nearby Pro to watch unlimited areas — home, work, and family.",
+      [
+        { text: "Not now", style: "cancel" },
+        { text: "Upgrade", onPress: () => navigation.navigate("Profile", { screen: "Subscription" }) },
+      ]
+    );
+  };
+
+  const handleSelectZone = (zone: WatchedZone) => {
+    loadZoneIntoDraft(zone);
+    setActiveZoneId(zone.id);
+    setPickingOnMap(false);
+    const span = Math.max(0.02, (zone.radiusKm / 111) * 2.6);
+    mapRef.current?.animateToRegion(
+      { latitude: zone.lat, longitude: zone.lng, latitudeDelta: span, longitudeDelta: span },
+      400
+    );
+  };
+
+  const handleNewZone = () => {
+    if (!canAddZone) {
+      handleUpsell();
+      return;
+    }
+    setDraftCenter({ ...mapCenterRef.current });
+    setDraftLabel(null);
+    setDraftRadiusM(clampZoneRadius(DEFAULT_RADIUS_KM * 1000));
+    setActiveZoneId(null);
+    setPickingOnMap(false);
+  };
+
+  const handleDeleteZone = async (id: string) => {
+    await removeWatchedZone(id);
+    const next = zones.filter((zone) => zone.id !== id);
+    zonesRef.current = next;
+    setZones(next);
+    if (activeZoneId === id) {
+      if (next.length > 0) {
+        loadZoneIntoDraft(next[0]);
+        setActiveZoneId(next[0].id);
+      } else {
+        setDraftCenter(null);
+        setDraftLabel(null);
+        setActiveZoneId(null);
+      }
+    }
   };
 
   const handleSelectZoneAddress = (result: GeocodeResult) => {
@@ -184,18 +300,34 @@ export function MapScreen() {
 
   const handleSaveWatchZone = async () => {
     if (!draftCenter) return;
+
+    if (!activeZoneId && !canAddZone) {
+      handleUpsell();
+      return;
+    }
+
     setSavingZone(true);
     try {
       const label = draftLabel ?? (await reverseGeocode(draftCenter.lat, draftCenter.lng).catch(() => "Custom location"));
-      const next: SavedLocation = { label, lat: draftCenter.lat, lng: draftCenter.lng, radiusKm: draftRadiusM / 1000 };
-      await setSavedLocation(next);
-      watchedLocationRef.current = next;
-      setWatchedLocation(next);
+      const location: SavedLocation = { label, lat: draftCenter.lat, lng: draftCenter.lng, radiusKm: draftRadiusM / 1000 };
+
+      let saved: WatchedZone;
+      if (activeZoneId) {
+        await updateWatchedZone(activeZoneId, location);
+        saved = { ...location, id: activeZoneId };
+      } else {
+        saved = await addWatchedZone(location);
+      }
+
+      const nextZones = await getWatchedZones();
+      zonesRef.current = nextZones;
+      setZones(nextZones);
+      setActiveZoneId(saved.id);
       setWatchZoneOpen(false);
       setPickingOnMap(false);
-      const span = Math.max(0.02, (next.radiusKm / 111) * 2.6);
+      const span = Math.max(0.02, (saved.radiusKm / 111) * 2.6);
       mapRef.current?.animateToRegion(
-        { latitude: next.lat, longitude: next.lng, latitudeDelta: span, longitudeDelta: span },
+        { latitude: saved.lat, longitude: saved.lng, latitudeDelta: span, longitudeDelta: span },
         500
       );
     } finally {
@@ -234,7 +366,7 @@ export function MapScreen() {
 
         {visibleIncidents.map((incident) => {
           const category = categorizeIncident(incident.type, incident.source);
-          const isCrime = incident.source === "police";
+          const isCrime = incident.source === "police" || incident.source === "social";
           const size = isCrime ? Math.max(14, markerSize - 4) : markerSize;
           return (
             <Marker
@@ -250,25 +382,27 @@ export function MapScreen() {
           );
         })}
 
-        {watchedLocation && !watchZoneOpen && (
-          <>
-            <Circle
-              center={{ latitude: watchedLocation.lat, longitude: watchedLocation.lng }}
-              radius={watchedLocation.radiusKm * 1000}
-              strokeColor={THEME.colors.primary}
-              strokeWidth={2}
-              fillColor="rgba(0, 198, 83, 0.15)"
-              zIndex={0}
-            />
-            <Marker
-              coordinate={{ latitude: watchedLocation.lat, longitude: watchedLocation.lng }}
-              anchor={{ x: 0.5, y: 1 }}
-              zIndex={4}
-            >
-              <Ionicons name="bookmark" size={28} color={THEME.colors.primary} />
-            </Marker>
-          </>
-        )}
+        {zones
+          .filter((zone) => !watchZoneOpen || zone.id !== activeZoneId)
+          .map((zone) => (
+            <React.Fragment key={zone.id}>
+              <Circle
+                center={{ latitude: zone.lat, longitude: zone.lng }}
+                radius={zone.radiusKm * 1000}
+                strokeColor={THEME.colors.primary}
+                strokeWidth={2}
+                fillColor="rgba(0, 198, 83, 0.15)"
+                zIndex={0}
+              />
+              <Marker
+                coordinate={{ latitude: zone.lat, longitude: zone.lng }}
+                anchor={{ x: 0.5, y: 1 }}
+                zIndex={4}
+              >
+                <Ionicons name="bookmark" size={28} color={THEME.colors.primary} />
+              </Marker>
+            </React.Fragment>
+          ))}
 
         {watchZoneOpen && draftCenter && (
           <>
@@ -327,11 +461,11 @@ export function MapScreen() {
         incidents={visibleIncidents}
         selectedId={selectedIncidentId}
         onSelectId={setSelectedIncidentId}
-        center={watchedLocation ? { lat: watchedLocation.lat, lng: watchedLocation.lng } : undefined}
+        center={zones[0] ? { lat: zones[0].lat, lng: zones[0].lng } : undefined}
         loading={incidentsLoading}
       />
 
-      {!watchZoneOpen && (
+      {!watchZoneOpen && !selectedIncidentId && (
         <Pressable
           style={[styles.fab, { bottom: fabBottomOffset }]}
           onPress={handleOpenWatchZone}
@@ -353,6 +487,12 @@ export function MapScreen() {
           onClose={handleCloseWatchZone}
           saving={savingZone}
           hasSelection={!!draftCenter}
+          zones={zones}
+          activeZoneId={activeZoneId}
+          onSelectZone={handleSelectZone}
+          onDeleteZone={handleDeleteZone}
+          onNewZone={handleNewZone}
+          canAddZone={canAddZone}
         />
       )}
     </View>

@@ -1,23 +1,38 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert as RNAlert,
   Animated,
   Dimensions,
+  Linking,
   PanResponder,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { distanceKm } from "../utils/geo";
+import { getProStatus } from "../utils/proStatus";
+import { computeSafetyIndex } from "../utils/safetyIndex";
 import { formatRelativeTime } from "../utils/time";
 import { CATEGORY_ICONS } from "./IncidentMarker";
+import { SafetyScoreSheet } from "./SafetyScoreSheet";
 import { categoryColors, radius, spacing, tabBarBottomMargin, tabBarHeight, typography } from "../theme";
 import { THEME } from "../theme/theme";
+
+// Radius around an incident used to compute its NearBy Safety Index.
+const SAFETY_INDEX_RADIUS_KM = 2;
+
+function safetyScoreColor(score: number): string {
+  if (score >= 75) return THEME.colors.primary;
+  if (score >= 55) return THEME.colors.warning;
+  return THEME.colors.danger;
+}
 
 interface IncidentDetailSheetProps {
   incidents: Incident[];
@@ -42,8 +57,12 @@ const SHEET_HEIGHT = SCREEN_HEIGHT * 0.28;
 
 export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center, loading }: IncidentDetailSheetProps) {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
   const index = incidents.findIndex((item) => item.id === selectedId);
   const incident = index >= 0 ? incidents[index] : null;
+
+  const [isPro, setIsPro] = useState(false);
+  const [safetyIndexOpen, setSafetyIndexOpen] = useState(false);
 
   const translateY = useRef(new Animated.Value(SHEET_OFFSET)).current;
 
@@ -83,6 +102,7 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
       friction: 9,
       tension: 70,
     }).start();
+    getProStatus().then(setIsPro);
   }, [selectedId, translateY]);
 
   if (!selectedId) return null;
@@ -125,6 +145,47 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
     ? distanceKm(center!, { lat: incident.lat as number, lng: incident.lng as number })
     : null;
 
+  const safetyIndex =
+    incident.lat !== null && incident.lng !== null
+      ? computeSafetyIndex({ lat: incident.lat, lng: incident.lng }, SAFETY_INDEX_RADIUS_KM, incidents)
+      : null;
+
+  const handleInsightsPress = () => {
+    if (isPro) {
+      setSafetyIndexOpen(true);
+      return;
+    }
+
+    RNAlert.alert(
+      "NearBy Safety Index is a Pro feature",
+      "Unlock crime trends, traffic safety, and fire/EMS activity scores for any location with Nearby Pro.",
+      [
+        { text: "Not now", style: "cancel" },
+        {
+          text: "Upgrade",
+          onPress: () => navigation.navigate("Profile", { screen: "Subscription" }),
+        },
+      ]
+    );
+  };
+
+  const handleShare = () => {
+    const mapsLink =
+      incident.lat !== null && incident.lng !== null
+        ? `https://maps.google.com/?q=${incident.lat},${incident.lng}`
+        : null;
+    Share.share({
+      message: [
+        `${CATEGORY_LABELS[category]} reported near ${incident.location}`,
+        incident.type,
+        mapsLink,
+        "Shared via Vigilant — stay aware of what's happening near you.",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+  };
+
   return (
     <Animated.View
       style={[styles.sheetWrapper, { bottom: bottomOffset, height: SHEET_HEIGHT, transform: [{ translateY }] }]}
@@ -141,6 +202,9 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
               <Text style={[styles.badgeText, { color: accentColor }]}>{CATEGORY_LABELS[category]}</Text>
             </View>
             <View style={styles.spacer} />
+            <Pressable onPress={handleShare} hitSlop={8} style={styles.closeButton}>
+              <Ionicons name="share-social-outline" size={20} color={THEME.colors.textSecondary} />
+            </Pressable>
             <Pressable onPress={() => onSelectId(null)} hitSlop={8} style={styles.closeButton}>
               <Ionicons name="close" size={20} color={THEME.colors.textSecondary} />
             </Pressable>
@@ -172,27 +236,53 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
             </View>
           )}
 
-          <Pressable
-            style={styles.insightsCard}
-            onPress={() =>
-              RNAlert.alert(
-                "NearBy Safety Index",
-                "Thanks for your interest! We are currently benchmarking Edmonton neighborhood safety data. This premium feature will be available in the next update."
-              )
-            }
-          >
+          {incident.source === "social" && (
+            <View style={styles.row}>
+              <Ionicons name="newspaper-outline" size={14} color={THEME.colors.textSecondary} style={styles.rowIcon} />
+              {incident.url ? (
+                <Text style={styles.rowText}>
+                  Official EPS update —{" "}
+                  <Text style={styles.linkText} onPress={() => Linking.openURL(incident.url as string)}>
+                    read full release
+                  </Text>
+                </Text>
+              ) : (
+                <Text style={styles.rowText}>Official EPS media release</Text>
+              )}
+            </View>
+          )}
+
+          <Pressable style={styles.insightsCard} onPress={handleInsightsPress}>
             <Ionicons name="shield-checkmark" size={16} color={THEME.colors.primary} style={styles.insightsIcon} />
             <View style={styles.insightsTextWrap}>
               <Text style={styles.insightsTitle}>NearBy Safety Index</Text>
-              <Text style={styles.insightsSubtitle}>School ratings, trends & more</Text>
+              <Text style={styles.insightsSubtitle}>
+                {isPro && safetyIndex
+                  ? `${safetyIndex.score}/100 · ${safetyIndex.rating} · within ${SAFETY_INDEX_RADIUS_KM} km`
+                  : "Crime, traffic & fire activity score"}
+              </Text>
             </View>
             <View style={styles.insightsAction}>
-              <Ionicons name="lock-closed" size={12} color={THEME.colors.textOnPrimary} style={styles.insightsLockIcon} />
-              <Text style={styles.insightsActionText}>Unlock</Text>
+              {!isPro && (
+                <Ionicons name="lock-closed" size={12} color={THEME.colors.textOnPrimary} style={styles.insightsLockIcon} />
+              )}
+              <Text style={styles.insightsActionText}>{isPro ? "View" : "Unlock"}</Text>
             </View>
           </Pressable>
         </View>
       </View>
+
+      {safetyIndex && (
+        <SafetyScoreSheet
+          visible={safetyIndexOpen}
+          onClose={() => setSafetyIndexOpen(false)}
+          cityLabel={incident.location}
+          score={safetyIndex.score}
+          rating={safetyIndex.rating}
+          color={safetyScoreColor(safetyIndex.score)}
+          breakdown={safetyIndex.breakdown}
+        />
+      )}
     </Animated.View>
   );
 }
@@ -283,6 +373,10 @@ const styles = StyleSheet.create({
     flex: 1,
     color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,
+  },
+  linkText: {
+    color: THEME.colors.primary,
+    fontWeight: "700",
   },
   insightsCard: {
     flexDirection: "row",

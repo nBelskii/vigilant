@@ -4,7 +4,7 @@ const CRIME_KEYWORDS = ["ASSAULT", "ROBBERY", "THEFT", "BREAK", "WEAPON", "DISTU
 const TRAFFIC_KEYWORDS = ["MVC", "COLLISION", "TRAFFIC", "VEHICLE"];
 
 export function categorizeIncident(type: string, source?: Incident["source"]): IncidentCategory {
-  if (source === "police") {
+  if (source === "police" || source === "social") {
     return "crime";
   }
 

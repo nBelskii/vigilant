@@ -3,11 +3,11 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "r
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { fetchAlerts, fetchCrimeIncidents, fetchIncidents } from "../api/client";
-import { Alert, Incident } from "../types";
+import { fetchAirQuality, fetchAlerts, fetchCrimeIncidents, fetchIncidents } from "../api/client";
+import { AirQuality, Alert, Incident } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { distanceKm } from "../utils/geo";
-import { DEFAULT_RADIUS_KM, getSavedLocation, SavedLocation } from "../utils/savedLocation";
+import { DEFAULT_RADIUS_KM, getWatchedZones, WatchedZone } from "../utils/savedLocation";
 import { SafetyScoreGauge } from "../components/SafetyScoreGauge";
 import { SafetyScoreBreakdownItem, SafetyScoreSheet } from "../components/SafetyScoreSheet";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
@@ -119,6 +119,62 @@ const CITY_PROFILES: Record<string, CityProfile> = {
 
 const CITY_OPTIONS = Object.keys(CITY_PROFILES);
 
+// Rotates daily so the dashboard always has something fresh to show, even
+// when there's no new activity nearby.
+const SAFETY_TIPS: { icon: keyof typeof Ionicons.glyphMap; title: string; text: string }[] = [
+  {
+    icon: "car-outline",
+    title: "Lock it up",
+    text: "Always lock your vehicle and keep valuables out of sight — vehicle break-ins are one of the most common reports nearby.",
+  },
+  {
+    icon: "flashlight-outline",
+    title: "Light the way",
+    text: "Stick to well-lit streets at night and let someone know your route if you're walking alone.",
+  },
+  {
+    icon: "home-outline",
+    title: "Secure your home",
+    text: "Double-check doors and windows before bed — most break-ins happen through unlocked entry points.",
+  },
+  {
+    icon: "bicycle-outline",
+    title: "Lock your bike right",
+    text: "Use a U-lock through the frame and a wheel, and park in well-trafficked, well-lit areas.",
+  },
+  {
+    icon: "phone-portrait-outline",
+    title: "Stay aware",
+    text: "Avoid walking while distracted by your phone, especially in unfamiliar areas after dark.",
+  },
+  {
+    icon: "people-outline",
+    title: "Travel together",
+    text: "When possible, walk with others — groups are far less likely to be targeted.",
+  },
+  {
+    icon: "flame-outline",
+    title: "Check your alarms",
+    text: "Test smoke and CO detectors monthly — most home fires turn deadly when alarms are missing or dead.",
+  },
+];
+
+function getTipOfDay() {
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  return SAFETY_TIPS[dayIndex % SAFETY_TIPS.length];
+}
+
+function aqhiColor(category: string): string {
+  switch (category) {
+    case "Low Risk":
+      return THEME.colors.primary;
+    case "Moderate Risk":
+      return THEME.colors.warning;
+    default:
+      return THEME.colors.danger;
+  }
+}
+
 function scoreColor(score: number): string {
   if (score >= 75) return THEME.colors.primary;
   if (score >= 55) return THEME.colors.warning;
@@ -162,7 +218,8 @@ export function DashboardScreen() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [crime, setCrime] = useState<Incident[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [location, setLocation] = useState<SavedLocation | null>(null);
+  const [airQuality, setAirQuality] = useState<AirQuality[]>([]);
+  const [zones, setZones] = useState<WatchedZone[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [activeCity, setActiveCity] = useState("Edmonton, AB");
   const [scoreSheetOpen, setScoreSheetOpen] = useState(false);
@@ -170,14 +227,16 @@ export function DashboardScreen() {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [incidentsData, crimeData, alertsData] = await Promise.allSettled([
+    const [incidentsData, crimeData, alertsData, airQualityData] = await Promise.allSettled([
       fetchIncidents(),
       fetchCrimeIncidents(),
       fetchAlerts(),
+      fetchAirQuality(),
     ]);
     if (incidentsData.status === "fulfilled") setIncidents(incidentsData.value);
     if (crimeData.status === "fulfilled") setCrime(crimeData.value);
     if (alertsData.status === "fulfilled") setAlerts(alertsData.value);
+    if (airQualityData.status === "fulfilled") setAirQuality(airQualityData.value);
   }, []);
 
   useEffect(() => {
@@ -186,7 +245,7 @@ export function DashboardScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      getSavedLocation().then(setLocation);
+      getWatchedZones().then(setZones);
       load();
       const interval = setInterval(load, 60000);
       return () => clearInterval(interval);
@@ -200,20 +259,31 @@ export function DashboardScreen() {
   }, [load]);
 
   const profile = CITY_PROFILES[activeCity];
-  const center = location ? { lat: location.lat, lng: location.lng } : EDMONTON_CENTER;
-  const radiusKm = location?.radiusKm ?? DEFAULT_RADIUS_KM;
+  const primaryZone = zones[0];
+  const center = primaryZone ? { lat: primaryZone.lat, lng: primaryZone.lng } : EDMONTON_CENTER;
+
+  // Falls back to a default Edmonton-wide zone for first-time users who
+  // haven't saved a watch zone yet.
+  const effectiveZones: { label: string; lat: number; lng: number; radiusKm: number }[] =
+    zones.length > 0
+      ? zones
+      : [{ label: "Edmonton, AB", lat: EDMONTON_CENTER.lat, lng: EDMONTON_CENTER.lng, radiusKm: DEFAULT_RADIUS_KM }];
 
   const recentIncidents = useMemo(() => {
     return [...incidents, ...crime]
       .filter((item) => {
         if (item.lat === null || item.lng === null) return false;
-        return distanceKm(center, { lat: item.lat, lng: item.lng }) <= radiusKm;
+        return effectiveZones.some(
+          (zone) => distanceKm({ lat: zone.lat, lng: zone.lng }, { lat: item.lat as number, lng: item.lng as number }) <= zone.radiusKm
+        );
       })
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 8);
-  }, [incidents, crime, center, radiusKm]);
+  }, [incidents, crime, effectiveZones]);
 
   const activeAlertsCount = alerts.length + recentIncidents.length;
+  const cityAirQuality = airQuality.find((aq) => aq.city === profile.label.split(",")[0].trim());
+  const tipOfDay = useMemo(() => getTipOfDay(), []);
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -278,6 +348,26 @@ export function DashboardScreen() {
               <Ionicons name="alert-circle-outline" size={16} color={THEME.colors.textSecondary} />
               <Text style={styles.metaText}>Active Alerts: {activeAlertsCount}</Text>
             </View>
+            {cityAirQuality && (
+              <View style={styles.metaItem}>
+                <Ionicons name="leaf-outline" size={16} color={aqhiColor(cityAirQuality.category)} />
+                <Text style={styles.metaText}>
+                  Air Quality: {cityAirQuality.category}
+                  {cityAirQuality.aqhi !== null ? ` (AQHI ${cityAirQuality.aqhi})` : ""}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Daily safety tip */}
+        <View style={styles.tipCard}>
+          <View style={styles.tipIconWrap}>
+            <Ionicons name={tipOfDay.icon} size={18} color={THEME.colors.primary} />
+          </View>
+          <View style={styles.tipTextWrap}>
+            <Text style={styles.tipTitle}>Tip of the day · {tipOfDay.title}</Text>
+            <Text style={styles.tipText}>{tipOfDay.text}</Text>
           </View>
         </View>
 
@@ -343,7 +433,7 @@ export function DashboardScreen() {
         {recentIncidents.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyText}>
-              No recent activity within {radiusKm} km of {location?.label ?? "your watched area"}.
+              No recent activity within {effectiveZones.map((zone) => zone.label).join(", ")}.
             </Text>
           </View>
         ) : (
@@ -493,6 +583,37 @@ const styles = StyleSheet.create({
     color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     flexShrink: 1,
+  },
+  tipCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: THEME.colors.secondary,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginTop: spacing.sm,
+  },
+  tipIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.md,
+    backgroundColor: THEME.colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.sm,
+  },
+  tipTextWrap: {
+    flex: 1,
+  },
+  tipTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
+    marginBottom: 2,
+  },
+  tipText: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    lineHeight: 18,
   },
   sectionHeaderRow: {
     flexDirection: "row",

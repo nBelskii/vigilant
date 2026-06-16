@@ -112,3 +112,13 @@ export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; ln
 
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+
+// Human-friendly distance for notification copy: meters under 1km, otherwise
+// km with one decimal (e.g. "450 m", "2.3 km").
+export function formatDistance(km: number): string {
+  if (km < 1) {
+    const meters = Math.round((km * 1000) / 10) * 10;
+    return `${Math.max(meters, 10)} m`;
+  }
+  return `${km.toFixed(1)} km`;
+}

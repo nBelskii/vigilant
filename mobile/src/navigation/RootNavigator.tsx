@@ -10,6 +10,7 @@ import { ProfileScreen } from "../screens/ProfileScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { SubscriptionScreen } from "../screens/SubscriptionScreen";
 import { CustomTabBar } from "./CustomTabBar";
+import { navigationRef } from "./navigationRef";
 import { THEME } from "../theme/theme";
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +40,7 @@ function ProfileStackNavigator() {
 
 export function RootNavigator() {
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       <Tab.Navigator
         screenOptions={{ headerShown: false }}
         tabBar={(props) => <CustomTabBar {...props} />}

@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppHeader } from "../components/AppHeader";
 import { SettingsRow } from "../components/SettingsRow";
+import { getProStatus } from "../utils/proStatus";
+import { getWatchedZones } from "../utils/savedLocation";
 import { radius, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
+  const [isPro, setIsPro] = useState(false);
+  const [zoneCount, setZoneCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      getProStatus().then(setIsPro);
+      getWatchedZones().then((zones) => setZoneCount(zones.length));
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -28,11 +39,13 @@ export function ProfileScreen() {
 
         <Pressable onPress={() => navigation.navigate("Subscription")} style={styles.proCard}>
           <View style={styles.proIconWrap}>
-            <Ionicons name="shield-checkmark" size={22} color={THEME.colors.primary} />
+            <Ionicons name={isPro ? "checkmark-circle" : "shield-checkmark"} size={22} color={THEME.colors.primary} />
           </View>
           <View style={styles.proTextWrap}>
-            <Text style={styles.proTitle}>Upgrade to Nearby Pro</Text>
-            <Text style={styles.proSubtitle}>Unlimited areas, instant alerts & more</Text>
+            <Text style={styles.proTitle}>{isPro ? "Nearby Pro active" : "Upgrade to Nearby Pro"}</Text>
+            <Text style={styles.proSubtitle}>
+              {isPro ? "Unlimited areas, instant alerts & more unlocked" : "Unlimited areas, instant alerts & more"}
+            </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={THEME.colors.textSecondary} />
         </Pressable>
@@ -46,7 +59,13 @@ export function ProfileScreen() {
             showChevron
             onPress={() => navigation.navigate("Settings")}
           />
-          <SettingsRow icon="shield-checkmark-outline" label="Saved Areas" description="Manage watched neighbourhoods" showChevron />
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label="Saved Areas"
+            description={zoneCount === 0 ? "No watch zones yet" : `${zoneCount} watched area${zoneCount === 1 ? "" : "s"}`}
+            showChevron
+            onPress={() => navigation.navigate("Map")}
+          />
           <SettingsRow icon="time-outline" label="Alert History" description="Past alerts in your area" showChevron />
         </View>
 

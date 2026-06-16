@@ -28,3 +28,7 @@ export function fetchAlerts(): Promise<Alert[]> {
 export function fetchAirQuality(): Promise<AirQuality[]> {
   return getJson<AirQuality[]>("/api/airquality");
 }
+
+export function fetchSocialIncidents(): Promise<Incident[]> {
+  return getJson<Incident[]>("/api/social");
+}
