@@ -81,7 +81,7 @@ async function geocode(location: string): Promise<{ lat: number; lng: number } |
     const normalized = location.replace(/\b(and|near)\b/gi, "&");
     const query = encodeURIComponent(`${normalized}, Edmonton, AB, Canada`);
     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`, {
-      headers: { "User-Agent": "NearbyApp/1.0 (community safety app)" },
+      headers: { "User-Agent": "NearbyApp/1.0 (belskii.nikolay@gmail.com)" },
     });
 
     if (!res.ok) {

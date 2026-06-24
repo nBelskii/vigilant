@@ -9,6 +9,14 @@ import { WatchedZone } from "../utils/savedLocation";
 import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
+type ZoneType = "home" | "work" | "school";
+
+const ZONE_TYPE_OPTIONS: { type: ZoneType; icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
+  { type: "home", icon: "home-outline", label: "Home" },
+  { type: "work", icon: "briefcase-outline", label: "Work" },
+  { type: "school", icon: "school-outline", label: "School" },
+];
+
 interface WatchZonePanelProps {
   bottomOffset: number;
   locationLabel: string | null;
@@ -26,6 +34,8 @@ interface WatchZonePanelProps {
   onDeleteZone: (id: string) => void;
   onNewZone: () => void;
   canAddZone: boolean;
+  draftType?: ZoneType;
+  onTypeChange?: (type: ZoneType) => void;
 }
 
 export function WatchZonePanel({
@@ -45,6 +55,8 @@ export function WatchZonePanel({
   onDeleteZone,
   onNewZone,
   canAddZone,
+  draftType = "home",
+  onTypeChange,
 }: WatchZonePanelProps) {
   const translateY = useRef(new Animated.Value(40)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -115,6 +127,27 @@ export function WatchZonePanel({
               </Text>
             </Pressable>
           </ScrollView>
+        )}
+
+        {/* Zone type selector */}
+        {onTypeChange && (
+          <View style={styles.typeRow}>
+            {ZONE_TYPE_OPTIONS.map(({ type, icon, label }) => (
+              <Pressable
+                key={type}
+                style={[styles.typeChip, draftType === type && styles.typeChipActive]}
+                onPress={() => onTypeChange(type)}
+              >
+                <Ionicons
+                  name={icon}
+                  size={13}
+                  color={draftType === type ? THEME.colors.primary : THEME.colors.textSecondary}
+                  style={styles.typeChipIcon}
+                />
+                <Text style={[styles.typeChipLabel, draftType === type && styles.typeChipLabelActive]}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
         )}
 
         <Text style={styles.subtitle}>
@@ -286,4 +319,31 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
+  typeRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  typeChip: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    backgroundColor: THEME.colors.surface,
+  },
+  typeChipActive: {
+    borderColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.secondary,
+  },
+  typeChipIcon: { marginRight: 4 },
+  typeChipLabel: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    fontWeight: "600",
+  },
+  typeChipLabelActive: { color: THEME.colors.primary },
 });

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchAirQuality, fetchAlerts, fetchCrimeIncidents, fetchIncidents, fetchSocialIncidents } from "../api/client";
+import { scheduleDailyBriefing, cancelDailyBriefing } from "../utils/dailyBriefing";
 import { Incident, IncidentCategory } from "../types";
 import { categorizeIncident } from "../utils/categorize";
 import { distanceKm, formatDistance } from "../utils/geo";
@@ -79,6 +80,18 @@ export function useIncidentAlerts() {
       const alerts = alertsResult.status === "fulfilled" ? alertsResult.value : [];
       const airQuality = airQualityResult.status === "fulfilled" ? airQualityResult.value : [];
 
+      // Schedule (or cancel) the 7am daily briefing based on current pref and fresh data.
+      if (prefs.morningBriefing && prefs.pushEnabled) {
+        const overnight = [...incidents, ...crime].filter((i) => {
+          const age = Date.now() - new Date(i.timestamp).getTime();
+          return age < 12 * 60 * 60 * 1000;
+        });
+        const aqhiLabel = airQuality[0]?.category ?? "Good";
+        scheduleDailyBriefing(overnight.length, aqhiLabel).catch(() => {});
+      } else {
+        cancelDailyBriefing().catch(() => {});
+      }
+
       if (!prefs.pushEnabled) {
         const interval = isPro ? PRO_POLL_INTERVAL_MS : FREE_POLL_INTERVAL_MS;
         if (!cancelled) timeoutId = setTimeout(check, interval);
@@ -120,6 +133,15 @@ export function useIncidentAlerts() {
         const category = categorizeIncident(incident.type, incident.source);
         if (category === "crime" && !prefs.crimeAlerts) return;
         if (category === "traffic" && !prefs.trafficAlerts) return;
+
+        // School zones only alert on weekdays 7am–5pm.
+        if (match.zone.type === "school") {
+          if (!prefs.schoolZoneAlerts) return;
+          const now = new Date();
+          const day = now.getDay();
+          const hour = now.getHours();
+          if (day === 0 || day === 6 || hour < 7 || hour >= 17) return;
+        }
 
         const distance = formatDistance(match.distanceKm);
         const headline = incident.source === "social" ? "📰 Official EPS update nearby" : CATEGORY_HEADLINES[category];

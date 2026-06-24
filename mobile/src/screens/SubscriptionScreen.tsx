@@ -1,8 +1,10 @@
 import React, { useCallback, useState } from "react";
-import { Alert as RNAlert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert as RNAlert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { PurchasesPackage } from "react-native-purchases";
+import { getAvailablePackages, purchasePackage, restorePurchases } from "../utils/purchasesService";
 import { getProStatus, setProStatus } from "../utils/proStatus";
 import { radius, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
@@ -22,40 +24,103 @@ const FEATURES: PlanFeature[] = [
   { icon: "ban", label: "No ads" },
 ];
 
-type PlanId = "monthly" | "yearly";
+// Stable fallback prices shown when RevenueCat packages haven't loaded yet.
+const FALLBACK_PLANS = [
+  { id: "yearly", label: "Annual", price: "$49.99 / year", savings: "Save $34/yr" },
+  { id: "monthly", label: "Monthly", price: "$6.99 / month", savings: null },
+];
 
 export function SubscriptionScreen() {
   const navigation = useNavigation<any>();
-  const [selected, setSelected] = useState<PlanId>("yearly");
+  const [packages, setPackages] = useState<PurchasesPackage[]>([]);
+  const [selectedPkg, setSelectedPkg] = useState<PurchasesPackage | null>(null);
+  const [selectedFallback, setSelectedFallback] = useState<string>("yearly");
   const [isPro, setIsPro] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [restoring, setRestoring] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       getProStatus().then(setIsPro);
+      getAvailablePackages().then((pkgs) => {
+        setPackages(pkgs);
+        // Default to the annual package if available
+        const annual = pkgs.find((p) => p.packageType === "ANNUAL" || p.identifier.includes("annual"));
+        setSelectedPkg(annual ?? pkgs[0] ?? null);
+      });
     }, [])
   );
 
   const handleSubscribe = async () => {
+    if (loading) return;
+
+    // Real purchase via RevenueCat
+    if (selectedPkg) {
+      setLoading(true);
+      try {
+        const granted = await purchasePackage(selectedPkg);
+        if (granted) {
+          setIsPro(true);
+          RNAlert.alert(
+            "Welcome to Nearby Pro",
+            "Unlimited watch areas, the NearBy Safety Index, air quality alerts, and priority push are now unlocked."
+          );
+        }
+      } catch (e: any) {
+        if (!e?.userCancelled) {
+          RNAlert.alert("Purchase failed", e?.message ?? "Something went wrong. Please try again.");
+        }
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Dev preview fallback (no RevenueCat keys configured)
     await setProStatus(true);
     setIsPro(true);
     RNAlert.alert(
-      "Welcome to Nearby Pro",
-      "Unlimited watch areas, the NearBy Safety Index, air quality alerts, and priority push are now unlocked."
+      "Preview mode",
+      "No RevenueCat keys detected — Pro unlocked locally for testing only."
     );
   };
 
+  const handleRestore = async () => {
+    if (restoring) return;
+    setRestoring(true);
+    try {
+      const granted = await restorePurchases();
+      if (granted) {
+        setIsPro(true);
+        RNAlert.alert("Restored", "Your Nearby Pro subscription has been restored.");
+      } else {
+        RNAlert.alert("Nothing to restore", "No active Pro subscription found for this Apple ID.");
+      }
+    } catch (e: any) {
+      RNAlert.alert("Restore failed", e?.message ?? "Something went wrong.");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
   const handleManage = () => {
-    RNAlert.alert("Manage subscription", "Turn off this preview of Nearby Pro?", [
-      { text: "Keep Pro", style: "cancel" },
-      {
-        text: "Turn off",
-        style: "destructive",
-        onPress: async () => {
-          await setProStatus(false);
-          setIsPro(false);
-        },
-      },
+    RNAlert.alert("Manage subscription", "Manage or cancel your subscription in the App Store.", [
+      { text: "OK" },
     ]);
+  };
+
+  // Build display list: use real packages if available, else fallback UI
+  const usingRealPackages = packages.length > 0;
+
+  const priceLabel = (pkg: PurchasesPackage) =>
+    pkg.product.priceString +
+    (pkg.packageType === "ANNUAL" || pkg.identifier.includes("annual") ? " / year" : " / month");
+
+  const annualSavings = (pkg: PurchasesPackage) => {
+    if (pkg.packageType === "ANNUAL" || pkg.identifier.includes("annual")) {
+      return "Best value";
+    }
+    return null;
   };
 
   return (
@@ -75,41 +140,63 @@ export function SubscriptionScreen() {
         <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
         <Text style={styles.heroSubtitle}>Unlimited areas, instant alerts, and more.</Text>
 
+        {/* Plan selector */}
         <View style={styles.plans}>
-          <Pressable
-            style={[styles.planCard, selected === "yearly" && styles.planCardActive]}
-            onPress={() => setSelected("yearly")}
-          >
-            <Ionicons
-              name={selected === "yearly" ? "radio-button-on" : "radio-button-off"}
-              size={22}
-              color={selected === "yearly" ? THEME.colors.primary : THEME.colors.textSecondary}
-            />
-            <View style={styles.planTextWrap}>
-              <Text style={styles.planLabel}>Annual</Text>
-              <Text style={styles.planPeriod}>$49.99 / year</Text>
-            </View>
-            <View style={styles.savingsBadge}>
-              <Text style={styles.savingsBadgeText}>Save $34/yr</Text>
-            </View>
-          </Pressable>
-
-          <Pressable
-            style={[styles.planCard, selected === "monthly" && styles.planCardActive]}
-            onPress={() => setSelected("monthly")}
-          >
-            <Ionicons
-              name={selected === "monthly" ? "radio-button-on" : "radio-button-off"}
-              size={22}
-              color={selected === "monthly" ? THEME.colors.primary : THEME.colors.textSecondary}
-            />
-            <View style={styles.planTextWrap}>
-              <Text style={styles.planLabel}>Monthly</Text>
-              <Text style={styles.planPeriod}>$6.99 / month</Text>
-            </View>
-          </Pressable>
+          {usingRealPackages
+            ? packages.map((pkg) => {
+                const isSelected = selectedPkg?.identifier === pkg.identifier;
+                const savings = annualSavings(pkg);
+                return (
+                  <Pressable
+                    key={pkg.identifier}
+                    style={[styles.planCard, isSelected && styles.planCardActive]}
+                    onPress={() => setSelectedPkg(pkg)}
+                  >
+                    <Ionicons
+                      name={isSelected ? "radio-button-on" : "radio-button-off"}
+                      size={22}
+                      color={isSelected ? THEME.colors.primary : THEME.colors.textSecondary}
+                    />
+                    <View style={styles.planTextWrap}>
+                      <Text style={styles.planLabel}>{pkg.product.title || pkg.identifier}</Text>
+                      <Text style={styles.planPeriod}>{priceLabel(pkg)}</Text>
+                    </View>
+                    {savings && (
+                      <View style={styles.savingsBadge}>
+                        <Text style={styles.savingsBadgeText}>{savings}</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })
+            : FALLBACK_PLANS.map((plan) => {
+                const isSelected = selectedFallback === plan.id;
+                return (
+                  <Pressable
+                    key={plan.id}
+                    style={[styles.planCard, isSelected && styles.planCardActive]}
+                    onPress={() => setSelectedFallback(plan.id)}
+                  >
+                    <Ionicons
+                      name={isSelected ? "radio-button-on" : "radio-button-off"}
+                      size={22}
+                      color={isSelected ? THEME.colors.primary : THEME.colors.textSecondary}
+                    />
+                    <View style={styles.planTextWrap}>
+                      <Text style={styles.planLabel}>{plan.label}</Text>
+                      <Text style={styles.planPeriod}>{plan.price}</Text>
+                    </View>
+                    {plan.savings && (
+                      <View style={styles.savingsBadge}>
+                        <Text style={styles.savingsBadgeText}>{plan.savings}</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
         </View>
 
+        {/* Feature list */}
         <View style={styles.section}>
           {FEATURES.map((feature) => (
             <View key={feature.label} style={styles.featureRow}>
@@ -126,18 +213,37 @@ export function SubscriptionScreen() {
               <Text style={[styles.subscribeLabel, styles.subscribeLabelActive]}>You're on Nearby Pro</Text>
             </View>
             <Pressable onPress={handleManage}>
-              <Text style={styles.manageLink}>Manage subscription</Text>
+              <Text style={styles.secondaryLink}>Manage subscription</Text>
             </Pressable>
           </>
         ) : (
           <>
-            <Pressable style={styles.subscribeButton} onPress={handleSubscribe}>
-              <Text style={styles.subscribeLabel}>
-                {selected === "yearly" ? "Start Pro — $49.99/yr" : "Start Pro — $6.99/mo"}
-              </Text>
+            <Pressable style={[styles.subscribeButton, loading && styles.subscribeButtonDisabled]} onPress={handleSubscribe}>
+              {loading ? (
+                <ActivityIndicator color={THEME.colors.textOnPrimary} />
+              ) : (
+                <Text style={styles.subscribeLabel}>
+                  {usingRealPackages
+                    ? `Start Pro — ${selectedPkg ? priceLabel(selectedPkg) : ""}`
+                    : selectedFallback === "yearly"
+                    ? "Start Pro — $49.99/yr"
+                    : "Start Pro — $6.99/mo"}
+                </Text>
+              )}
             </Pressable>
+
+            <Pressable onPress={handleRestore} disabled={restoring} style={styles.restoreWrap}>
+              {restoring ? (
+                <ActivityIndicator size="small" color={THEME.colors.textSecondary} />
+              ) : (
+                <Text style={styles.secondaryLink}>Restore purchases</Text>
+              )}
+            </Pressable>
+
             <Text style={styles.disclaimer}>
-              This is a preview of Nearby Pro. No real payment will be charged yet.
+              {usingRealPackages
+                ? "Payment charged to your Apple ID. Cancel anytime in the App Store."
+                : "No RevenueCat keys — running in preview mode. No real payment charged."}
             </Text>
           </>
         )}
@@ -147,10 +253,7 @@ export function SubscriptionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.colors.background,
-  },
+  container: { flex: 1, backgroundColor: THEME.colors.background },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -161,22 +264,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: THEME.colors.border,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  backButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   headerTitle: {
     color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
-  content: {
-    padding: spacing.lg,
-    paddingBottom: tabBarClearance,
-    alignItems: "center",
-  },
+  content: { padding: spacing.lg, paddingBottom: tabBarClearance, alignItems: "center" },
   heroIconWrap: {
     width: 64,
     height: 64,
@@ -200,11 +294,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.xl,
   },
-  plans: {
-    width: "100%",
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
+  plans: { width: "100%", gap: spacing.sm, marginBottom: spacing.lg },
   planCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -214,35 +304,17 @@ const styles = StyleSheet.create({
     borderColor: THEME.colors.border,
     padding: spacing.md,
   },
-  planCardActive: {
-    borderColor: THEME.colors.primary,
-    backgroundColor: THEME.colors.secondary,
-  },
-  planTextWrap: {
-    flex: 1,
-    marginLeft: spacing.md,
-  },
-  planLabel: {
-    color: THEME.colors.textPrimary,
-    fontSize: typography.body.fontSize,
-    fontWeight: "700",
-  },
-  planPeriod: {
-    color: THEME.colors.textSecondary,
-    fontSize: typography.caption.fontSize,
-    marginTop: 2,
-  },
+  planCardActive: { borderColor: THEME.colors.primary, backgroundColor: THEME.colors.secondary },
+  planTextWrap: { flex: 1, marginLeft: spacing.md },
+  planLabel: { color: THEME.colors.textPrimary, fontSize: typography.body.fontSize, fontWeight: "700" },
+  planPeriod: { color: THEME.colors.textSecondary, fontSize: typography.caption.fontSize, marginTop: 2 },
   savingsBadge: {
     backgroundColor: THEME.colors.secondary,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  savingsBadgeText: {
-    color: THEME.colors.primary,
-    fontSize: 11,
-    fontWeight: "700",
-  },
+  savingsBadgeText: { color: THEME.colors.primary, fontSize: 11, fontWeight: "700" },
   section: {
     width: "100%",
     backgroundColor: THEME.colors.surface,
@@ -252,18 +324,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
-  featureRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: spacing.sm,
-  },
-  featureIcon: {
-    marginRight: spacing.sm,
-  },
-  featureLabel: {
-    color: THEME.colors.textPrimary,
-    fontSize: typography.body.fontSize,
-  },
+  featureRow: { flexDirection: "row", alignItems: "center", paddingVertical: spacing.sm },
+  featureIcon: { marginRight: spacing.sm },
+  featureLabel: { color: THEME.colors.textPrimary, fontSize: typography.body.fontSize },
   subscribeButton: {
     width: "100%",
     flexDirection: "row",
@@ -278,28 +341,22 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: THEME.colors.primary,
   },
-  activeIcon: {
-    marginRight: spacing.xs,
-  },
-  subscribeLabel: {
-    color: THEME.colors.textOnPrimary,
-    fontSize: typography.body.fontSize,
-    fontWeight: "700",
-  },
-  subscribeLabelActive: {
-    color: THEME.colors.primary,
-  },
-  manageLink: {
+  subscribeButtonDisabled: { opacity: 0.6 },
+  activeIcon: { marginRight: spacing.xs },
+  subscribeLabel: { color: THEME.colors.textOnPrimary, fontSize: typography.body.fontSize, fontWeight: "700" },
+  subscribeLabelActive: { color: THEME.colors.primary },
+  restoreWrap: { marginTop: spacing.md },
+  secondaryLink: {
     color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
     textAlign: "center",
-    marginTop: spacing.md,
   },
   disclaimer: {
     color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     textAlign: "center",
     marginTop: spacing.md,
+    lineHeight: 18,
   },
 });

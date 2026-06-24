@@ -9,6 +9,8 @@ import { AlertsScreen } from "../screens/AlertsScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { SubscriptionScreen } from "../screens/SubscriptionScreen";
+import { TrendsScreen } from "../screens/TrendsScreen";
+import { AddressCheckScreen } from "../screens/AddressCheckScreen";
 import { CustomTabBar } from "./CustomTabBar";
 import { navigationRef } from "./navigationRef";
 import { THEME } from "../theme/theme";
@@ -34,6 +36,8 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="ProfileHome" component={ProfileScreen} />
       <ProfileStack.Screen name="Settings" component={SettingsScreen} />
       <ProfileStack.Screen name="Subscription" component={SubscriptionScreen} />
+      <ProfileStack.Screen name="Trends" component={TrendsScreen} />
+      <ProfileStack.Screen name="AddressCheck" component={AddressCheckScreen} />
     </ProfileStack.Navigator>
   );
 }

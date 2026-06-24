@@ -82,6 +82,7 @@ export function MapScreen() {
   const [draftCenter, setDraftCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [draftLabel, setDraftLabel] = useState<string | null>(null);
   const [draftRadiusM, setDraftRadiusM] = useState(1000);
+  const [draftType, setDraftType] = useState<WatchedZone["type"]>("home");
   const [savingZone, setSavingZone] = useState(false);
   const mapRef = useRef<MapView>(null);
   const zonesRef = useRef<WatchedZone[]>([]);
@@ -195,6 +196,7 @@ export function MapScreen() {
     setDraftCenter({ lat: zone.lat, lng: zone.lng });
     setDraftLabel(zone.label);
     setDraftRadiusM(clampZoneRadius(zone.radiusKm * 1000));
+    setDraftType(zone.type ?? "home");
   };
 
   const handleOpenWatchZone = () => {
@@ -313,10 +315,10 @@ export function MapScreen() {
 
       let saved: WatchedZone;
       if (activeZoneId) {
-        await updateWatchedZone(activeZoneId, location);
-        saved = { ...location, id: activeZoneId };
+        await updateWatchedZone(activeZoneId, location, draftType);
+        saved = { ...location, id: activeZoneId, type: draftType };
       } else {
-        saved = await addWatchedZone(location);
+        saved = await addWatchedZone(location, draftType);
       }
 
       const nextZones = await getWatchedZones();
@@ -493,6 +495,8 @@ export function MapScreen() {
           onDeleteZone={handleDeleteZone}
           onNewZone={handleNewZone}
           canAddZone={canAddZone}
+          draftType={draftType}
+          onTypeChange={setDraftType}
         />
       )}
     </View>

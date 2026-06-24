@@ -33,6 +33,12 @@
     },
     "plugins": [
       [
+        "react-native-purchases",
+        {
+          "androidApiKey": ""
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "Nearby uses your location to show nearby safety alerts and incidents on the map."

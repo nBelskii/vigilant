@@ -9,6 +9,7 @@ export interface SavedLocation {
 
 export interface WatchedZone extends SavedLocation {
   id: string;
+  type?: "home" | "work" | "school";
 }
 
 const LEGACY_KEY = "nearby:watched-location";
@@ -54,16 +55,16 @@ export async function setWatchedZones(zones: WatchedZone[]): Promise<void> {
   await AsyncStorage.setItem(ZONES_KEY, JSON.stringify(zones));
 }
 
-export async function addWatchedZone(location: SavedLocation): Promise<WatchedZone> {
+export async function addWatchedZone(location: SavedLocation, type?: WatchedZone["type"]): Promise<WatchedZone> {
   const zones = await getWatchedZones();
-  const zone: WatchedZone = { ...location, id: makeZoneId() };
+  const zone: WatchedZone = { ...location, id: makeZoneId(), type };
   await setWatchedZones([...zones, zone]);
   return zone;
 }
 
-export async function updateWatchedZone(id: string, location: SavedLocation): Promise<void> {
+export async function updateWatchedZone(id: string, location: SavedLocation, type?: WatchedZone["type"]): Promise<void> {
   const zones = await getWatchedZones();
-  await setWatchedZones(zones.map((zone) => (zone.id === id ? { ...location, id } : zone)));
+  await setWatchedZones(zones.map((z) => (z.id === id ? { ...location, id, type: type ?? z.type } : z)));
 }
 
 export async function removeWatchedZone(id: string): Promise<void> {

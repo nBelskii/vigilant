@@ -4,6 +4,8 @@ export interface NotificationPrefs {
   pushEnabled: boolean;
   crimeAlerts: boolean;
   trafficAlerts: boolean;
+  morningBriefing: boolean;
+  schoolZoneAlerts: boolean;
 }
 
 const STORAGE_KEY = "nearby:notification-prefs";
@@ -12,6 +14,8 @@ const DEFAULT_PREFS: NotificationPrefs = {
   pushEnabled: true,
   crimeAlerts: true,
   trafficAlerts: true,
+  morningBriefing: true,
+  schoolZoneAlerts: true,
 };
 
 export async function getNotificationPrefs(): Promise<NotificationPrefs> {

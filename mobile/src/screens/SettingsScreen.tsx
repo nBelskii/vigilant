@@ -15,6 +15,8 @@ export function SettingsScreen() {
   const [pushEnabled, setPushEnabled] = useState(true);
   const [crimeAlerts, setCrimeAlerts] = useState(true);
   const [trafficAlerts, setTrafficAlerts] = useState(true);
+  const [morningBriefing, setMorningBriefing] = useState(true);
+  const [schoolZoneAlerts, setSchoolZoneAlerts] = useState(true);
   const [metric, setMetric] = useState(true);
   const [isPro, setIsPro] = useState(false);
 
@@ -23,6 +25,8 @@ export function SettingsScreen() {
       setPushEnabled(prefs.pushEnabled);
       setCrimeAlerts(prefs.crimeAlerts);
       setTrafficAlerts(prefs.trafficAlerts);
+      setMorningBriefing(prefs.morningBriefing);
+      setSchoolZoneAlerts(prefs.schoolZoneAlerts);
     });
     getProStatus().then(setIsPro);
   }, []);
@@ -32,8 +36,15 @@ export function SettingsScreen() {
     await setProStatus(next);
   };
 
-  const updatePrefs = (next: { pushEnabled: boolean; crimeAlerts: boolean; trafficAlerts: boolean }) => {
-    setNotificationPrefs(next);
+  const updatePrefs = (next: Partial<{ pushEnabled: boolean; crimeAlerts: boolean; trafficAlerts: boolean; morningBriefing: boolean; schoolZoneAlerts: boolean }>) => {
+    setNotificationPrefs({
+      pushEnabled,
+      crimeAlerts,
+      trafficAlerts,
+      morningBriefing,
+      schoolZoneAlerts,
+      ...next,
+    });
   };
 
   const handlePushToggle = async (next: boolean) => {
@@ -41,22 +52,32 @@ export function SettingsScreen() {
       const granted = await requestNotificationPermissions();
       if (!granted) {
         setPushEnabled(false);
-        updatePrefs({ pushEnabled: false, crimeAlerts, trafficAlerts });
+        updatePrefs({ pushEnabled: false });
         return;
       }
     }
     setPushEnabled(next);
-    updatePrefs({ pushEnabled: next, crimeAlerts, trafficAlerts });
+    updatePrefs({ pushEnabled: next });
   };
 
   const handleCrimeToggle = (next: boolean) => {
     setCrimeAlerts(next);
-    updatePrefs({ pushEnabled, crimeAlerts: next, trafficAlerts });
+    updatePrefs({ crimeAlerts: next });
   };
 
   const handleTrafficToggle = (next: boolean) => {
     setTrafficAlerts(next);
-    updatePrefs({ pushEnabled, crimeAlerts, trafficAlerts: next });
+    updatePrefs({ trafficAlerts: next });
+  };
+
+  const handleMorningBriefingToggle = (next: boolean) => {
+    setMorningBriefing(next);
+    updatePrefs({ morningBriefing: next });
+  };
+
+  const handleSchoolZoneToggle = (next: boolean) => {
+    setSchoolZoneAlerts(next);
+    updatePrefs({ schoolZoneAlerts: next });
   };
 
   return (
@@ -92,6 +113,20 @@ export function SettingsScreen() {
             description="Road closures & collisions"
             value={trafficAlerts}
             onValueChange={handleTrafficToggle}
+          />
+          <SettingsRow
+            icon="sunny-outline"
+            label="Morning Safety Brief"
+            description="Daily 7am summary of overnight activity"
+            value={morningBriefing}
+            onValueChange={handleMorningBriefingToggle}
+          />
+          <SettingsRow
+            icon="school-outline"
+            label="School Zone Alerts"
+            description="Incidents near schools (weekdays 7am–5pm)"
+            value={schoolZoneAlerts}
+            onValueChange={handleSchoolZoneToggle}
           />
         </View>
 

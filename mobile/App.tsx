@@ -9,6 +9,9 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { LoadingScreen } from "./src/components/LoadingScreen";
 import { useIncidentAlerts } from "./src/hooks/useIncidentAlerts";
 import { navigateToIncident } from "./src/navigation/navigationRef";
+import { initializePurchases } from "./src/utils/purchasesService";
+
+initializePurchases();
 
 export default function App() {
   const { loading: incidentsLoading, error: incidentsError } = useIncidentAlerts();

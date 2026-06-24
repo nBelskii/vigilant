@@ -422,6 +422,31 @@ export function DashboardScreen() {
           </View>
         )}
 
+        {/* Quick actions */}
+        <Text style={styles.sectionLabel}>Explore</Text>
+        <View style={styles.quickActions}>
+          <Pressable style={styles.quickCard} onPress={() => navigation.navigate("Profile", { screen: "Trends" })}>
+            <View style={styles.quickIconWrap}>
+              <Ionicons name="bar-chart" size={20} color={THEME.colors.primary} />
+            </View>
+            <View style={styles.quickTextWrap}>
+              <Text style={styles.quickTitle}>Neighbourhood Trends</Text>
+              <Text style={styles.quickSubtitle}>30-day crime & fire activity</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={THEME.colors.textSecondary} />
+          </Pressable>
+          <Pressable style={styles.quickCard} onPress={() => navigation.navigate("Profile", { screen: "AddressCheck" })}>
+            <View style={styles.quickIconWrap}>
+              <Ionicons name="shield-checkmark" size={20} color={THEME.colors.primary} />
+            </View>
+            <View style={styles.quickTextWrap}>
+              <Text style={styles.quickTitle}>Check Any Address</Text>
+              <Text style={styles.quickSubtitle}>Safety score before you go</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={THEME.colors.textSecondary} />
+          </Pressable>
+        </View>
+
         {/* Live incident feed */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionLabel}>Recent incidents</Text>
@@ -763,5 +788,35 @@ const styles = StyleSheet.create({
     fontSize: typography.body.fontSize,
     fontWeight: "700",
     marginRight: 2,
+  },
+  quickActions: { gap: spacing.sm, marginBottom: spacing.sm },
+  quickCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: THEME.colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    padding: spacing.md,
+  },
+  quickIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: THEME.colors.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md,
+  },
+  quickTextWrap: { flex: 1 },
+  quickTitle: {
+    color: THEME.colors.textPrimary,
+    fontSize: typography.body.fontSize,
+    fontWeight: "700",
+  },
+  quickSubtitle: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    marginTop: 2,
   },
 });

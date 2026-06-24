@@ -242,7 +242,15 @@ export function IncidentDetailSheet({ incidents, selectedId, onSelectId, center,
               {incident.url ? (
                 <Text style={styles.rowText}>
                   Official EPS update —{" "}
-                  <Text style={styles.linkText} onPress={() => Linking.openURL(incident.url as string)}>
+                  <Text
+                    style={styles.linkText}
+                    onPress={() => {
+                      const url = incident.url as string;
+                      if (url.startsWith("https://www.edmontonpolice.ca/")) {
+                        Linking.openURL(url);
+                      }
+                    }}
+                  >
                     read full release
                   </Text>
                 </Text>
