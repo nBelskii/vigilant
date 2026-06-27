@@ -13,13 +13,15 @@ import geocodeRouter from "./routes/geocode";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 
 const ALLOWED_ORIGINS = [
   /^exp:\/\//,            // Expo Go (dev)
   /^http:\/\/localhost/,  // local dev
   /^http:\/\/192\.168\./,  // LAN dev (phone on same WiFi)
-  /^https:\/\/nearby\.app$/, // production domain (update when you have one)
+  /^https:\/\/nearby\.app$/,
+  /^https:\/\/vigilant-angc\.onrender\.com$/,
 ];
 
 app.use(cors({

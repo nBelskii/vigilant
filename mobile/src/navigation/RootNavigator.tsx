@@ -53,7 +53,15 @@ export function RootNavigator() {
         <Tab.Screen name="Map" component={MapScreen} />
         <Tab.Screen name="Alerts" component={AlertsScreen} />
         <Tab.Screen name="Digest" component={DigestScreen} />
-        <Tab.Screen name="Profile" component={ProfileStackNavigator} />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileStackNavigator}
+          listeners={({ navigation }) => ({
+            tabPress: () => {
+              navigation.navigate("Profile", { screen: "ProfileHome" });
+            },
+          })}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );
