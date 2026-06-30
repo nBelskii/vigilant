@@ -3,6 +3,11 @@ import { Animated } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
+import {
+  InstrumentSans_400Regular,
+  InstrumentSans_500Medium,
+  InstrumentSans_700Bold,
+} from "@expo-google-fonts/instrument-sans";
 import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import { RootNavigator } from "./src/navigation/RootNavigator";
@@ -18,6 +23,9 @@ export default function App() {
 
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
+    InstrumentSans_400Regular,
+    InstrumentSans_500Medium,
+    InstrumentSans_700Bold,
   });
   const [appReady, setAppReady] = useState(false);
   const appOpacity = useRef(new Animated.Value(0)).current;
@@ -61,7 +69,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       {fontsLoaded && (
         <Animated.View style={{ flex: 1, opacity: appOpacity }} onLayout={onLayout}>
           <RootNavigator />

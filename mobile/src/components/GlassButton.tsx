@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { Text } from "./AppText";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
@@ -13,9 +14,10 @@ interface GlassButtonProps {
   style?: ViewStyle;
 }
 
-// iOS gets the "Liquid Glass" treatment (translucent blur + light highlight
-// border), matching the iOS 26 design language. Android falls back to a flat
-// tinted surface since BlurView there is less convincing on light themes.
+// iOS gets the "Liquid Glass" treatment (translucent dark blur + light
+// highlight border), matching the iOS 26 design language on a dark canvas.
+// Android falls back to a flat tinted surface since BlurView there is less
+// convincing.
 export function GlassButton({ label, icon, onPress, variant = "default", disabled, style }: GlassButtonProps) {
   const isPrimary = variant === "primary";
   const content = (
@@ -24,7 +26,7 @@ export function GlassButton({ label, icon, onPress, variant = "default", disable
         <Ionicons
           name={icon}
           size={18}
-          color={isPrimary ? "#ffffff" : colors.text}
+          color={isPrimary ? colors.background : colors.text}
           style={styles.icon}
         />
       )}
@@ -38,7 +40,7 @@ export function GlassButton({ label, icon, onPress, variant = "default", disable
         {isPrimary ? (
           <View style={[styles.glassBase, styles.glassPrimary]}>{content}</View>
         ) : (
-          <BlurView intensity={50} tint="light" style={[styles.glassBase, styles.glassLight]}>
+          <BlurView intensity={50} tint="dark" style={[styles.glassBase, styles.glassDark]}>
             {content}
           </BlurView>
         )}
@@ -53,7 +55,7 @@ export function GlassButton({ label, icon, onPress, variant = "default", disable
       style={[
         styles.pressable,
         styles.glassBase,
-        isPrimary ? styles.glassPrimary : styles.androidLight,
+        isPrimary ? styles.glassPrimary : styles.androidDark,
         disabled && styles.disabled,
         style,
       ]}
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   disabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   glassBase: {
     flexDirection: "row",
@@ -80,17 +82,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     borderWidth: 1,
   },
-  glassLight: {
-    backgroundColor: "rgba(255,255,255,0.35)",
-    borderColor: "rgba(255,255,255,0.6)",
+  glassDark: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.14)",
   },
-  androidLight: {
-    backgroundColor: "rgba(255,255,255,0.85)",
+  androidDark: {
+    backgroundColor: colors.surfaceRaised,
     borderColor: colors.border,
   },
   glassPrimary: {
     backgroundColor: colors.brandEnd,
-    borderColor: "rgba(255,255,255,0.35)",
+    borderColor: colors.brandEnd,
   },
   content: {
     flexDirection: "row",
@@ -106,6 +108,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   labelPrimary: {
-    color: "#ffffff",
+    color: colors.background,
   },
 });

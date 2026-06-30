@@ -1,5 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./AppText";
 import { categoryColors, colors, radius, spacing, typography } from "../theme";
 import { IncidentCategory } from "../types";
 
@@ -64,10 +65,10 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   label: {
-    color: colors.text,
+    color: "#1A1A1A",
     fontSize: typography.caption.fontSize,
   },
   labelDimmed: {
-    color: colors.textMuted,
+    color: "#6B6B6E",
   },
 });

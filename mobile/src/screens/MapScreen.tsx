@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert as RNAlert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert as RNAlert, Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "../components/AppText";
 import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
@@ -69,7 +70,7 @@ export function MapScreen() {
   const [crimeIncidents, setCrimeIncidents] = useState<Incident[]>([]);
   const [socialIncidents, setSocialIncidents] = useState<Incident[]>([]);
   const [showCrime, setShowCrime] = useState(true);
-  const [mapSkin, setMapSkin] = useState<MapSkin>(MAP_SKINS[0]);
+  const [mapSkin, setMapSkin] = useState<MapSkin>(MAP_SKINS[1]);
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [zones, setZones] = useState<WatchedZone[]>([]);
   const [activeZoneId, setActiveZoneId] = useState<string | null>(null);

@@ -1,16 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Alert as RNAlert,
-  Animated,
-  Dimensions,
-  Linking,
-  PanResponder,
-  Pressable,
-  Share,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert as RNAlert, Animated, Dimensions, Linking, PanResponder, Pressable, Share, StyleSheet, View } from "react-native";
+import { Text } from "./AppText";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

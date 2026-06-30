@@ -1,19 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert as RNAlert,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert as RNAlert, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text, TextInput } from "../components/AppText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppHeader } from "../components/AppHeader";
-import { SettingsRow } from "../components/SettingsRow";
+import { ProfileTile } from "../components/ProfileTile";
 import { fetchAirQuality, fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Incident } from "../types";
 import { distanceKm } from "../utils/geo";
@@ -181,33 +173,29 @@ export function ProfileScreen() {
 
         {/* ── Hero card ── */}
         <View style={styles.heroCard}>
-          <View style={styles.heroTop}>
-            <View style={styles.heroAvatar}>
-              <Ionicons name="person" size={30} color={THEME.colors.primary} />
-            </View>
-            <View style={styles.heroMeta}>
-              <Text style={styles.heroName} numberOfLines={1}>
-                {primaryZone?.label ?? "Edmonton, AB"}
-              </Text>
-              <View style={[styles.heroBadge, isPro ? styles.heroBadgePro : styles.heroBadgeFree]}>
-                {isPro && (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={11}
-                    color={THEME.colors.primary}
-                    style={{ marginRight: 3 }}
-                  />
-                )}
-                <Text
-                  style={[
-                    styles.heroBadgeText,
-                    isPro ? styles.heroBadgeTextPro : styles.heroBadgeTextFree,
-                  ]}
-                >
-                  {isPro ? "Nearby Pro" : "Free plan"}
-                </Text>
-              </View>
-            </View>
+          <View style={styles.heroAvatar}>
+            <Ionicons name="person" size={36} color={THEME.colors.textPrimary} />
+          </View>
+          <Text style={styles.heroName} numberOfLines={1}>
+            {primaryZone?.label ?? "Edmonton, AB"}
+          </Text>
+          <View style={[styles.heroBadge, isPro ? styles.heroBadgePro : styles.heroBadgeFree]}>
+            {isPro && (
+              <Ionicons
+                name="checkmark-circle"
+                size={11}
+                color={THEME.colors.conversion}
+                style={{ marginRight: 3 }}
+              />
+            )}
+            <Text
+              style={[
+                styles.heroBadgeText,
+                isPro ? styles.heroBadgeTextPro : styles.heroBadgeTextFree,
+              ]}
+            >
+              {isPro ? "Nearby Pro" : "Free plan"}
+            </Text>
           </View>
 
           <View style={styles.statsRow}>
@@ -405,64 +393,33 @@ export function ProfileScreen() {
           <Ionicons name="chevron-forward" size={20} color={THEME.colors.textSecondary} />
         </Pressable>
 
-        {/* ── Explore ── */}
-        <Text style={styles.sectionLabel}>Explore</Text>
-        <View style={styles.section}>
-          <SettingsRow
+        {/* ── Quick links ── */}
+        <Text style={styles.sectionLabel}>Quick Links</Text>
+        <View style={styles.tileGrid}>
+          <ProfileTile
             icon="bar-chart-outline"
             label="Neighbourhood Trends"
-            description="30-day crime & activity chart"
-            showChevron
             onPress={() => navigation.navigate("Trends")}
           />
-          <SettingsRow
+          <ProfileTile
             icon="shield-checkmark-outline"
             label="Check Any Address"
-            description="Live safety score for any location"
-            showChevron
             onPress={() => navigation.navigate("AddressCheck")}
           />
-        </View>
-
-        {/* ── Preferences ── */}
-        <Text style={styles.sectionLabel}>Preferences</Text>
-        <View style={styles.section}>
-          <SettingsRow
+          <ProfileTile
             icon="settings-outline"
             label="Settings"
-            description="Notifications, map style, units"
-            showChevron
             onPress={() => navigation.navigate("Settings")}
           />
-          <SettingsRow
+          <ProfileTile
             icon="location-outline"
             label="Saved Areas"
-            description={
-              zones.length === 0
-                ? "No watch zones yet"
-                : `${zones.length} watched area${zones.length === 1 ? "" : "s"}`
-            }
-            showChevron
+            badge={zones.length > 0 ? String(zones.length) : undefined}
             onPress={() => navigation.navigate("Map")}
           />
-          <SettingsRow
-            icon="time-outline"
-            label="Alert History"
-            description="Past alerts in your area"
-            showChevron
-          />
-        </View>
-
-        {/* ── About ── */}
-        <Text style={styles.sectionLabel}>About</Text>
-        <View style={styles.section}>
-          <SettingsRow
-            icon="information-circle-outline"
-            label="About Nearby"
-            description="Version 1.0.0"
-            showChevron
-          />
-          <SettingsRow icon="help-circle-outline" label="Help & Support" showChevron />
+          <ProfileTile icon="time-outline" label="Alert History" />
+          <ProfileTile icon="information-circle-outline" label="About Nearby" />
+          <ProfileTile icon="help-circle-outline" label="Help & Support" />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -482,53 +439,44 @@ const styles = StyleSheet.create({
 
   // ── Hero ──
   heroCard: {
-    backgroundColor: THEME.colors.secondary,
+    backgroundColor: THEME.colors.surface,
     borderRadius: radius.xl,
     padding: spacing.lg,
     marginBottom: spacing.lg,
     borderWidth: 1,
     borderColor: THEME.colors.border,
-  },
-  heroTop: {
-    flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.lg,
   },
   heroAvatar: {
-    width: 56,
-    height: 56,
+    width: 88,
+    height: 88,
     borderRadius: radius.full,
-    backgroundColor: THEME.colors.background,
-    borderWidth: 2,
-    borderColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.secondary,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: spacing.md,
-  },
-  heroMeta: {
-    flex: 1,
+    marginBottom: spacing.md,
   },
   heroName: {
     color: THEME.colors.textPrimary,
-    fontSize: typography.subheading.fontSize,
-    fontWeight: typography.subheading.fontWeight,
-    marginBottom: spacing.xs,
+    fontSize: typography.title.fontSize,
+    fontWeight: typography.title.fontWeight,
+    marginBottom: spacing.sm,
   },
   heroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-start",
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
     borderRadius: radius.full,
+    marginBottom: spacing.lg,
   },
   heroBadgePro: {
-    backgroundColor: "rgba(0,200,83,0.12)",
+    backgroundColor: "rgba(255,184,0,0.14)",
     borderWidth: 1,
-    borderColor: "rgba(0,200,83,0.30)",
+    borderColor: "rgba(255,184,0,0.45)",
   },
   heroBadgeFree: {
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: THEME.colors.secondary,
     borderWidth: 1,
     borderColor: THEME.colors.border,
   },
@@ -537,13 +485,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   heroBadgeTextPro: {
-    color: THEME.colors.primary,
+    color: THEME.colors.conversion,
   },
   heroBadgeTextFree: {
     color: THEME.colors.textSecondary,
   },
   statsRow: {
     flexDirection: "row",
+    width: "100%",
     backgroundColor: THEME.colors.background,
     borderRadius: radius.lg,
     paddingVertical: spacing.md,
@@ -820,10 +769,9 @@ const styles = StyleSheet.create({
   },
 
   // ── Row sections ──
-  section: {
-    backgroundColor: THEME.colors.surface,
-    borderRadius: radius.lg,
-    overflow: "hidden",
-    marginBottom: spacing.lg,
+  tileGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
 });

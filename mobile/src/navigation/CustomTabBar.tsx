@@ -63,6 +63,9 @@ function TabIcon({ name, isFocused, onPress }: TabIconProps) {
     <Pressable onPress={handlePress} style={styles.item} hitSlop={8}>
       <View style={styles.iconSlot}>
         <Animated.View style={[styles.ripple, { opacity: rippleOpacity, transform: [{ scale: rippleScale }] }]} />
+        <Animated.View
+          style={[styles.activeBg, { opacity: activeOpacity, transform: [{ scale: iconScale }] }]}
+        />
         <AnimatedIcon
           name={icon}
           iconStyle="regular"
@@ -74,7 +77,7 @@ function TabIcon({ name, isFocused, onPress }: TabIconProps) {
           name={icon}
           iconStyle="solid"
           size={20}
-          color={THEME.colors.primary}
+          color={THEME.colors.background}
           style={{ opacity: activeOpacity, transform: [{ scale: iconScale }] }}
         />
       </View>
@@ -123,15 +126,15 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: THEME.colors.secondary,
+    borderColor: THEME.colors.border,
     paddingTop: 14,
     paddingBottom: 10,
     paddingHorizontal: 10,
     justifyContent: "space-between",
-    backgroundColor: "rgba(255,255,255,0.94)",
-    shadowColor: THEME.colors.primary,
-    shadowOpacity: 0.16,
-    shadowRadius: 20,
+    backgroundColor: THEME.colors.surface,
+    shadowColor: "#000000",
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 },
     elevation: 10,
   },
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
   },
   iconSlot: {
     width: 44,
-    height: 22,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -153,7 +156,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: radius.full,
-    backgroundColor: "rgba(0, 200, 83, 0.18)",
+    backgroundColor: "rgba(255, 255, 255, 0.10)",
+  },
+  activeBg: {
+    position: "absolute",
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: THEME.colors.primary,
   },
   label: {
     marginTop: spacing.xs,

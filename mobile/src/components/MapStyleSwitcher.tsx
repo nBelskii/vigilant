@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./AppText";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
 import { MAP_SKINS, MapSkin } from "../utils/mapStyles";
@@ -15,7 +16,7 @@ export function MapStyleSwitcher({ selected, onSelect }: MapStyleSwitcherProps) 
   return (
     <>
       <Pressable style={styles.button} onPress={() => setOpen(true)}>
-        <Ionicons name="layers" size={20} color={colors.text} />
+        <Ionicons name="layers" size={20} color="#1A1A1A" />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>

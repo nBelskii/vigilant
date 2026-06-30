@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { Text } from "./AppText";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
 
@@ -54,7 +55,7 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
       <Animated.View style={[styles.logoWrap, { opacity, transform: [{ scale }] }]}>
         <Animated.View style={[styles.ring, { opacity: ringOpacity, transform: [{ scale: ringScale }] }]} />
         <View style={styles.logoDot}>
-          <Ionicons name="location" size={28} color="#ffffff" />
+          <Ionicons name="location" size={28} color={colors.background} />
         </View>
       </Animated.View>
       <Animated.Text style={[styles.title, { opacity }]}>Nearby</Animated.Text>

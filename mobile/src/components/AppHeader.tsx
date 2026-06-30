@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Text } from "./AppText";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { radius, spacing, typography } from "../theme";
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
   },
   titleBlockFloating: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.85)",
+    backgroundColor: "rgba(10,10,10,0.85)",
     borderWidth: 1,
     borderColor: THEME.colors.border,
     borderRadius: radius.full,
