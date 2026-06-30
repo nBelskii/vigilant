@@ -1,6 +1,6 @@
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { BlurView } from "expo-blur";
+import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { Text } from "./MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radius, spacing, typography } from "../theme";
 
@@ -13,84 +13,52 @@ interface GlassButtonProps {
   style?: ViewStyle;
 }
 
-// iOS gets the "Liquid Glass" treatment (translucent blur + light highlight
-// border), matching the iOS 26 design language. Android falls back to a flat
-// tinted surface since BlurView there is less convincing on light themes.
+// Flat, sharp-edged button — solid black on primary, outlined on default.
+// No blur/translucency: the Hi-Fi terminal look reads through crisp borders,
+// not soft glass.
 export function GlassButton({ label, icon, onPress, variant = "default", disabled, style }: GlassButtonProps) {
   const isPrimary = variant === "primary";
-  const content = (
-    <View style={styles.content}>
-      {icon && (
-        <Ionicons
-          name={icon}
-          size={18}
-          color={isPrimary ? "#ffffff" : colors.text}
-          style={styles.icon}
-        />
-      )}
-      <Text style={[styles.label, isPrimary && styles.labelPrimary]}>{label}</Text>
-    </View>
-  );
-
-  if (Platform.OS === "ios") {
-    return (
-      <Pressable onPress={onPress} disabled={disabled} style={[styles.pressable, disabled && styles.disabled, style]}>
-        {isPrimary ? (
-          <View style={[styles.glassBase, styles.glassPrimary]}>{content}</View>
-        ) : (
-          <BlurView intensity={50} tint="light" style={[styles.glassBase, styles.glassLight]}>
-            {content}
-          </BlurView>
-        )}
-      </Pressable>
-    );
-  }
-
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={[
-        styles.pressable,
-        styles.glassBase,
-        isPrimary ? styles.glassPrimary : styles.androidLight,
-        disabled && styles.disabled,
-        style,
-      ]}
+      style={[styles.base, isPrimary ? styles.primary : styles.outline, disabled && styles.disabled, style]}
     >
-      {content}
+      <View style={styles.content}>
+        {icon && (
+          <Ionicons
+            name={icon}
+            size={18}
+            color={isPrimary ? "#ffffff" : colors.text}
+            style={styles.icon}
+          />
+        )}
+        <Text style={[styles.label, isPrimary && styles.labelPrimary]}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  pressable: {
-    borderRadius: radius.full,
-    overflow: "hidden",
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  glassBase: {
+  base: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: spacing.sm + 2,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.full,
+    borderRadius: radius.md,
     borderWidth: 1,
   },
-  glassLight: {
-    backgroundColor: "rgba(255,255,255,0.35)",
-    borderColor: "rgba(255,255,255,0.6)",
+  disabled: {
+    opacity: 0.5,
   },
-  androidLight: {
-    backgroundColor: "rgba(255,255,255,0.85)",
+  outline: {
+    backgroundColor: colors.background,
     borderColor: colors.border,
   },
-  glassPrimary: {
+  primary: {
     backgroundColor: colors.brandEnd,
-    borderColor: "rgba(255,255,255,0.35)",
+    borderColor: colors.brandEnd,
   },
   content: {
     flexDirection: "row",

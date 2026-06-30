@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { Alert } from "../types";
 import { severityColor } from "../utils/severity";
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     ...Platform.select({
       ios: {
-        shadowColor: "#0f2a20",
+        shadowColor: "#000000",
         shadowOpacity: 0.08,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 4 },

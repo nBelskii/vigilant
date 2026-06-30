@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Modal, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "./MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { radius, spacing, tabBarBottomMargin, tabBarHeight, typography } from "../theme";
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
     borderRadius: radius.xl,
     padding: spacing.lg,
-    shadowColor: "#0f2a20",
+    shadowColor: "#000000",
     shadowOpacity: 0.18,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },

@@ -1,14 +1,6 @@
 import React, { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert as RNAlert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert as RNAlert, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text, TextInput } from "../components/MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -346,7 +338,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   proGateText: { color: THEME.colors.textSecondary, fontSize: typography.caption.fontSize },
-  proGateLink: { color: THEME.colors.primary, fontSize: typography.caption.fontSize, fontWeight: "700" },
+  proGateLink: { color: THEME.colors.conversion, fontSize: typography.caption.fontSize, fontWeight: "700" },
   mapButton: {
     flexDirection: "row",
     alignItems: "center",

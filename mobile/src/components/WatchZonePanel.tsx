@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "./MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { AddressSearch } from "./AddressSearch";
 import { GlassButton } from "./GlassButton";
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.background,
     borderRadius: radius.xl,
     padding: spacing.md,
-    shadowColor: "#0f2a20",
+    shadowColor: "#000000",
     shadowOpacity: 0.18,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },

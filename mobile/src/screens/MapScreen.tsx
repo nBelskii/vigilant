@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Alert as RNAlert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert as RNAlert, Platform, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "../components/MonoText";
 import MapView, { Circle, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import * as Location from "expo-location";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
@@ -535,7 +536,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: THEME.colors.border,
-    shadowColor: "#0f2a20",
+    shadowColor: "#000000",
     shadowOpacity: 0.18,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
@@ -552,7 +553,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     marginTop: spacing.sm,
-    shadowColor: "#0f2a20",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -583,7 +584,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     marginBottom: spacing.xs,
-    shadowColor: "#0f2a20",
+    shadowColor: "#000000",
     shadowOpacity: 0.12,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },

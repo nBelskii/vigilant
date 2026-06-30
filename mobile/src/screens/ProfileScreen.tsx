@@ -1,14 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert as RNAlert,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert as RNAlert, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text, TextInput } from "../components/MonoText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -194,7 +186,7 @@ export function ProfileScreen() {
                   <Ionicons
                     name="checkmark-circle"
                     size={11}
-                    color={THEME.colors.primary}
+                    color={THEME.colors.conversion}
                     style={{ marginRight: 3 }}
                   />
                 )}
@@ -389,7 +381,7 @@ export function ProfileScreen() {
             <Ionicons
               name={isPro ? "checkmark-circle" : "shield-checkmark"}
               size={22}
-              color={THEME.colors.primary}
+              color={THEME.colors.conversion}
             />
           </View>
           <View style={styles.proTextWrap}>
@@ -523,9 +515,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
   },
   heroBadgePro: {
-    backgroundColor: "rgba(0,200,83,0.12)",
+    backgroundColor: "rgba(255,184,0,0.14)",
     borderWidth: 1,
-    borderColor: "rgba(0,200,83,0.30)",
+    borderColor: "rgba(255,184,0,0.45)",
   },
   heroBadgeFree: {
     backgroundColor: THEME.colors.surface,
@@ -537,7 +529,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   heroBadgeTextPro: {
-    color: THEME.colors.primary,
+    color: THEME.colors.conversion,
   },
   heroBadgeTextFree: {
     color: THEME.colors.textSecondary,

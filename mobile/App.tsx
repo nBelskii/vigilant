@@ -3,6 +3,11 @@ import { Animated } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
+import {
+  JetBrainsMono_400Regular,
+  JetBrainsMono_500Medium,
+  JetBrainsMono_700Bold,
+} from "@expo-google-fonts/jetbrains-mono";
 import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import { RootNavigator } from "./src/navigation/RootNavigator";
@@ -18,6 +23,9 @@ export default function App() {
 
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
+    JetBrainsMono_400Regular,
+    JetBrainsMono_500Medium,
+    JetBrainsMono_700Bold,
   });
   const [appReady, setAppReady] = useState(false);
   const appOpacity = useRef(new Animated.Value(0)).current;
