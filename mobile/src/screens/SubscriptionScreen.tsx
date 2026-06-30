@@ -7,7 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { PurchasesPackage } from "react-native-purchases";
 import { getAvailablePackages, purchasePackage, restorePurchases } from "../utils/purchasesService";
 import { getProStatus, setProStatus } from "../utils/proStatus";
-import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { FadeSlideIn } from "../components/FadeSlideIn";
+import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
 interface PlanFeature {
@@ -134,6 +135,7 @@ export function SubscriptionScreen() {
         <View style={styles.backButton} />
       </View>
 
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroIconWrap}>
           <Ionicons name="shield-checkmark" size={32} color={THEME.colors.primary} />
@@ -249,6 +251,7 @@ export function SubscriptionScreen() {
           </>
         )}
       </ScrollView>
+      </FadeSlideIn>
     </SafeAreaView>
   );
 }
@@ -271,7 +274,7 @@ const styles = StyleSheet.create({
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
-  content: { padding: spacing.lg, paddingBottom: tabBarClearance, alignItems: "center" },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl, alignItems: "center" },
   heroIconWrap: {
     width: 64,
     height: 64,

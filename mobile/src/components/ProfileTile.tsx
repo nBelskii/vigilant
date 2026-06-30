@@ -8,13 +8,14 @@ import { THEME } from "../theme/theme";
 interface ProfileTileProps {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
+  subtitle?: string;
   badge?: string;
   onPress?: () => void;
 }
 
-// Rounded icon tile used in the Profile screen's quick-link grid — two per
-// row, icon-on-top / label-below, with an optional small count badge.
-export function ProfileTile({ icon, label, badge, onPress }: ProfileTileProps) {
+// Rounded icon tile used for quick-link grids across the app — two per row,
+// icon-on-top / label-below, with an optional caption and small count badge.
+export function ProfileTile({ icon, label, subtitle, badge, onPress }: ProfileTileProps) {
   return (
     <Pressable style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]} onPress={onPress}>
       <View style={styles.topRow}>
@@ -30,6 +31,11 @@ export function ProfileTile({ icon, label, badge, onPress }: ProfileTileProps) {
       <Text style={styles.label} numberOfLines={2}>
         {label}
       </Text>
+      {subtitle && (
+        <Text style={styles.subtitle} numberOfLines={2}>
+          {subtitle}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -81,5 +87,10 @@ const styles = StyleSheet.create({
     fontSize: typography.body.fontSize,
     fontWeight: "600",
     marginTop: spacing.md,
+  },
+  subtitle: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    marginTop: 2,
   },
 });

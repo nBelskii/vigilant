@@ -42,7 +42,7 @@ export function SettingsRow({
           value={value}
           onValueChange={onValueChange}
           trackColor={{ false: THEME.colors.border, true: THEME.colors.primary }}
-          thumbColor={THEME.colors.textOnPrimary}
+          thumbColor={value ? THEME.colors.textOnPrimary : THEME.colors.textPrimary}
         />
       )}
       {showChevron && <Ionicons name="chevron-forward" size={18} color={THEME.colors.textSecondary} />}
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.sm,
-    backgroundColor: THEME.colors.surface,
+    backgroundColor: THEME.colors.secondary,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.md,

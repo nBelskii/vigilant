@@ -13,6 +13,7 @@ import { AppHeader } from "../components/AppHeader";
 import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
+import { FadeSlideIn } from "../components/FadeSlideIn";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -75,6 +76,7 @@ export function AlertsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Alerts" subtitle={location ? `Within ${radiusKm.toFixed(1)} km of ${location.label}` : "Edmonton, AB"} />
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.primary} />}
@@ -107,6 +109,7 @@ export function AlertsScreen() {
           alerts.map((alert) => <AlertCard key={alert.id} alert={alert} />)
         )}
       </ScrollView>
+      </FadeSlideIn>
 
       <IncidentDetailSheet
         incidents={nearby}

@@ -12,6 +12,8 @@ import { DEFAULT_RADIUS_KM, getWatchedZones, WatchedZone } from "../utils/savedL
 import { SafetyScoreGauge } from "../components/SafetyScoreGauge";
 import { SafetyScoreBreakdownItem, SafetyScoreSheet } from "../components/SafetyScoreSheet";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
+import { ProfileTile } from "../components/ProfileTile";
+import { FadeSlideIn } from "../components/FadeSlideIn";
 import { spacing, tabBarClearance, typography, radius, screenPadding } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -288,6 +290,7 @@ export function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.primary} />}
@@ -425,27 +428,19 @@ export function DashboardScreen() {
 
         {/* Quick actions */}
         <Text style={styles.sectionLabel}>Explore</Text>
-        <View style={styles.quickActions}>
-          <Pressable style={styles.quickCard} onPress={() => navigation.navigate("Profile", { screen: "Trends" })}>
-            <View style={styles.quickIconWrap}>
-              <Ionicons name="bar-chart" size={20} color={THEME.colors.primary} />
-            </View>
-            <View style={styles.quickTextWrap}>
-              <Text style={styles.quickTitle}>Neighbourhood Trends</Text>
-              <Text style={styles.quickSubtitle}>30-day crime & fire activity</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={THEME.colors.textSecondary} />
-          </Pressable>
-          <Pressable style={styles.quickCard} onPress={() => navigation.navigate("Profile", { screen: "AddressCheck" })}>
-            <View style={styles.quickIconWrap}>
-              <Ionicons name="shield-checkmark" size={20} color={THEME.colors.primary} />
-            </View>
-            <View style={styles.quickTextWrap}>
-              <Text style={styles.quickTitle}>Check Any Address</Text>
-              <Text style={styles.quickSubtitle}>Safety score before you go</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={THEME.colors.textSecondary} />
-          </Pressable>
+        <View style={styles.tileGrid}>
+          <ProfileTile
+            icon="bar-chart"
+            label="Neighbourhood Trends"
+            subtitle="30-day crime & fire activity"
+            onPress={() => navigation.navigate("Profile", { screen: "Trends" })}
+          />
+          <ProfileTile
+            icon="shield-checkmark"
+            label="Check Any Address"
+            subtitle="Safety score before you go"
+            onPress={() => navigation.navigate("Profile", { screen: "AddressCheck" })}
+          />
         </View>
 
         {/* Live incident feed */}
@@ -487,6 +482,7 @@ export function DashboardScreen() {
           ))
         )}
       </ScrollView>
+      </FadeSlideIn>
 
       <SafetyScoreSheet
         visible={scoreSheetOpen}
@@ -790,34 +786,10 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginRight: 2,
   },
-  quickActions: { gap: spacing.sm, marginBottom: spacing.sm },
-  quickCard: {
+  tileGrid: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: THEME.colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    padding: spacing.md,
-  },
-  quickIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.md,
-    backgroundColor: THEME.colors.secondary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: spacing.md,
-  },
-  quickTextWrap: { flex: 1 },
-  quickTitle: {
-    color: THEME.colors.textPrimary,
-    fontSize: typography.body.fontSize,
-    fontWeight: "700",
-  },
-  quickSubtitle: {
-    color: THEME.colors.textSecondary,
-    fontSize: typography.caption.fontSize,
-    marginTop: 2,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
   },
 });

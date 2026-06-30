@@ -8,6 +8,7 @@ import { computeStats, groupByDay } from "../utils/digest";
 import { IncidentRow } from "../components/IncidentRow";
 import { StatCard } from "../components/StatCard";
 import { AppHeader } from "../components/AppHeader";
+import { FadeSlideIn } from "../components/FadeSlideIn";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -40,6 +41,7 @@ export function DigestScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Digest" subtitle="This week in Edmonton" />
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.statsRow}>
         <StatCard label="Total Incidents" value={String(stats.total)} />
@@ -60,6 +62,7 @@ export function DigestScreen() {
         </View>
       ))}
       </ScrollView>
+      </FadeSlideIn>
     </SafeAreaView>
   );
 }

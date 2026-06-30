@@ -6,6 +6,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppHeader } from "../components/AppHeader";
 import { ProfileTile } from "../components/ProfileTile";
+import { FadeSlideIn } from "../components/FadeSlideIn";
 import { fetchAirQuality, fetchCrimeIncidents, fetchIncidents } from "../api/client";
 import { Incident } from "../types";
 import { distanceKm } from "../utils/geo";
@@ -169,6 +170,7 @@ export function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <AppHeader title="Profile" />
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
         {/* ── Hero card ── */}
@@ -422,6 +424,7 @@ export function ProfileScreen() {
           <ProfileTile icon="help-circle-outline" label="Help & Support" />
         </View>
       </ScrollView>
+      </FadeSlideIn>
     </SafeAreaView>
   );
 }

@@ -5,10 +5,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SettingsRow } from "../components/SettingsRow";
+import { FadeSlideIn } from "../components/FadeSlideIn";
 import { getNotificationPrefs, setNotificationPrefs } from "../utils/notificationPrefs";
 import { requestNotificationPermissions } from "../utils/notifications";
 import { getProStatus, setProStatus } from "../utils/proStatus";
-import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
 export function SettingsScreen() {
@@ -91,6 +92,7 @@ export function SettingsScreen() {
         <View style={styles.backButton} />
       </View>
 
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.sectionLabel}>Notifications</Text>
         <View style={styles.section}>
@@ -164,6 +166,7 @@ export function SettingsScreen() {
           />
         </View>
       </ScrollView>
+      </FadeSlideIn>
     </SafeAreaView>
   );
 }
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: spacing.lg,
-    paddingBottom: tabBarClearance,
+    paddingBottom: spacing.xxl,
   },
   sectionLabel: {
     color: THEME.colors.textSecondary,
@@ -211,6 +214,8 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
     marginHorizontal: spacing.lg,
     overflow: "hidden",
   },

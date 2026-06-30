@@ -7,7 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchCrimeIncidents, fetchGeocode, fetchIncidents } from "../api/client";
 import { computeSafetyIndex } from "../utils/safetyIndex";
 import { getProStatus } from "../utils/proStatus";
-import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { FadeSlideIn } from "../components/FadeSlideIn";
+import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
 interface CheckResult {
@@ -84,6 +85,7 @@ export function AddressCheckScreen() {
         <View style={styles.backButton} />
       </View>
 
+      <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.subtitle}>
           Enter any Edmonton address to get a live safety score based on nearby incidents.
@@ -210,6 +212,7 @@ export function AddressCheckScreen() {
           </View>
         )}
       </ScrollView>
+      </FadeSlideIn>
     </SafeAreaView>
   );
 }
@@ -232,7 +235,7 @@ const styles = StyleSheet.create({
     fontSize: typography.heading.fontSize,
     fontWeight: typography.heading.fontWeight,
   },
-  content: { padding: spacing.lg, paddingBottom: tabBarClearance },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   subtitle: {
     color: THEME.colors.textSecondary,
     fontSize: typography.body.fontSize,

@@ -5,7 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchTrends, TrendsData } from "../api/client";
-import { radius, spacing, tabBarClearance, typography } from "../theme";
+import { FadeSlideIn } from "../components/FadeSlideIn";
+import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
 const MAX_BAR_HEIGHT = 120;
@@ -74,6 +75,7 @@ export function TrendsScreen() {
           <Text style={styles.loadingText}>Could not load trends. Check your connection.</Text>
         </View>
       ) : (
+        <FadeSlideIn style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content}>
           {activeTab === "weekly" ? (
             <>
@@ -205,6 +207,7 @@ export function TrendsScreen() {
             </>
           )}
         </ScrollView>
+        </FadeSlideIn>
       )}
     </SafeAreaView>
   );
@@ -255,7 +258,7 @@ const styles = StyleSheet.create({
   tabLabelActive: { color: THEME.colors.textOnPrimary },
   loadingWrap: { flex: 1, alignItems: "center", justifyContent: "center", gap: spacing.md },
   loadingText: { color: THEME.colors.textSecondary, fontSize: typography.body.fontSize },
-  content: { padding: spacing.lg, paddingBottom: tabBarClearance },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   sectionTitle: {
     color: THEME.colors.textPrimary,
     fontSize: typography.heading.fontSize,
