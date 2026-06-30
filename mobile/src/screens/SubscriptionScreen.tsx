@@ -8,6 +8,7 @@ import { PurchasesPackage } from "react-native-purchases";
 import { getAvailablePackages, purchasePackage, restorePurchases } from "../utils/purchasesService";
 import { getProStatus, setProStatus } from "../utils/proStatus";
 import { FadeSlideIn } from "../components/FadeSlideIn";
+import { ProfileTile } from "../components/ProfileTile";
 import { radius, spacing, typography } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -138,7 +139,7 @@ export function SubscriptionScreen() {
       <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.heroIconWrap}>
-          <Ionicons name="shield-checkmark" size={32} color={THEME.colors.primary} />
+          <Ionicons name="shield-checkmark" size={32} color={THEME.colors.conversion} />
         </View>
         <Text style={styles.heroTitle}>Stay ahead of what's nearby</Text>
         <Text style={styles.heroSubtitle}>Unlimited areas, instant alerts, and more.</Text>
@@ -158,7 +159,7 @@ export function SubscriptionScreen() {
                     <Ionicons
                       name={isSelected ? "radio-button-on" : "radio-button-off"}
                       size={22}
-                      color={isSelected ? THEME.colors.primary : THEME.colors.textSecondary}
+                      color={isSelected ? THEME.colors.conversion : THEME.colors.textSecondary}
                     />
                     <View style={styles.planTextWrap}>
                       <Text style={styles.planLabel}>{pkg.product.title || pkg.identifier}</Text>
@@ -183,7 +184,7 @@ export function SubscriptionScreen() {
                     <Ionicons
                       name={isSelected ? "radio-button-on" : "radio-button-off"}
                       size={22}
-                      color={isSelected ? THEME.colors.primary : THEME.colors.textSecondary}
+                      color={isSelected ? THEME.colors.conversion : THEME.colors.textSecondary}
                     />
                     <View style={styles.planTextWrap}>
                       <Text style={styles.planLabel}>{plan.label}</Text>
@@ -200,19 +201,16 @@ export function SubscriptionScreen() {
         </View>
 
         {/* Feature list */}
-        <View style={styles.section}>
+        <View style={styles.tileGrid}>
           {FEATURES.map((feature) => (
-            <View key={feature.label} style={styles.featureRow}>
-              <Ionicons name={feature.icon} size={18} color={THEME.colors.primary} style={styles.featureIcon} />
-              <Text style={styles.featureLabel}>{feature.label}</Text>
-            </View>
+            <ProfileTile key={feature.label} icon={feature.icon} label={feature.label} />
           ))}
         </View>
 
         {isPro ? (
           <>
             <View style={[styles.subscribeButton, styles.subscribeButtonActive]}>
-              <Ionicons name="checkmark-circle" size={18} color={THEME.colors.primary} style={styles.activeIcon} />
+              <Ionicons name="checkmark-circle" size={18} color={THEME.colors.conversion} style={styles.activeIcon} />
               <Text style={[styles.subscribeLabel, styles.subscribeLabelActive]}>You're on Nearby Pro</Text>
             </View>
             <Pressable onPress={handleManage}>
@@ -308,7 +306,7 @@ const styles = StyleSheet.create({
     borderColor: THEME.colors.border,
     padding: spacing.md,
   },
-  planCardActive: { borderColor: THEME.colors.primary, backgroundColor: THEME.colors.secondary },
+  planCardActive: { borderColor: THEME.colors.conversion, backgroundColor: THEME.colors.secondary },
   planTextWrap: { flex: 1, marginLeft: spacing.md },
   planLabel: { color: THEME.colors.textPrimary, fontSize: typography.body.fontSize, fontWeight: "700" },
   planPeriod: { color: THEME.colors.textSecondary, fontSize: typography.caption.fontSize, marginTop: 2 },
@@ -318,23 +316,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
   },
-  savingsBadgeText: { color: THEME.colors.primary, fontSize: 11, fontWeight: "700" },
-  section: {
+  savingsBadgeText: { color: THEME.colors.conversion, fontSize: 11, fontWeight: "700" },
+  tileGrid: {
     width: "100%",
-    backgroundColor: THEME.colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: THEME.colors.border,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
   },
-  featureRow: { flexDirection: "row", alignItems: "center", paddingVertical: spacing.sm },
-  featureIcon: { marginRight: spacing.sm },
-  featureLabel: { color: THEME.colors.textPrimary, fontSize: typography.body.fontSize },
   subscribeButton: {
     width: "100%",
     flexDirection: "row",
-    backgroundColor: THEME.colors.primary,
+    backgroundColor: THEME.colors.conversion,
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     alignItems: "center",
@@ -343,12 +336,12 @@ const styles = StyleSheet.create({
   subscribeButtonActive: {
     backgroundColor: THEME.colors.secondary,
     borderWidth: 1.5,
-    borderColor: THEME.colors.primary,
+    borderColor: THEME.colors.conversion,
   },
   subscribeButtonDisabled: { opacity: 0.6 },
   activeIcon: { marginRight: spacing.xs },
   subscribeLabel: { color: THEME.colors.textOnPrimary, fontSize: typography.body.fontSize, fontWeight: "700" },
-  subscribeLabelActive: { color: THEME.colors.primary },
+  subscribeLabelActive: { color: THEME.colors.conversion },
   restoreWrap: { marginTop: spacing.md },
   secondaryLink: {
     color: THEME.colors.textSecondary,

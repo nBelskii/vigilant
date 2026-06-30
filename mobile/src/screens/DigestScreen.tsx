@@ -6,7 +6,7 @@ import { fetchIncidents } from "../api/client";
 import { Incident } from "../types";
 import { computeStats, groupByDay } from "../utils/digest";
 import { IncidentRow } from "../components/IncidentRow";
-import { StatCard } from "../components/StatCard";
+import { StatGroup } from "../components/StatGroup";
 import { AppHeader } from "../components/AppHeader";
 import { FadeSlideIn } from "../components/FadeSlideIn";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
@@ -43,10 +43,14 @@ export function DigestScreen() {
       <AppHeader title="Digest" subtitle="This week in Edmonton" />
       <FadeSlideIn style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.content}>
-      <View style={styles.statsRow}>
-        <StatCard label="Total Incidents" value={String(stats.total)} />
-        <StatCard label="Fires / Emergencies" value={String(stats.fires)} valueColor={colors.warning} />
-        <StatCard label="vs Last Week" value={changeLabel} valueColor={changeColor} />
+      <View style={styles.statsWrap}>
+        <StatGroup
+          items={[
+            { label: "Total Incidents", value: String(stats.total) },
+            { label: "Fires / Emergencies", value: String(stats.fires), color: colors.warning },
+            { label: "vs Last Week", value: changeLabel, color: changeColor },
+          ]}
+        />
       </View>
 
       {!loading && days.length === 0 && (
@@ -76,9 +80,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: tabBarClearance,
   },
-  statsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
+  statsWrap: {
     marginBottom: spacing.xl,
   },
   daySection: {

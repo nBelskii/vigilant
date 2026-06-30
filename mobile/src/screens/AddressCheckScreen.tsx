@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   proGateText: { color: THEME.colors.textSecondary, fontSize: typography.caption.fontSize },
-  proGateLink: { color: THEME.colors.primary, fontSize: typography.caption.fontSize, fontWeight: "700" },
+  proGateLink: { color: THEME.colors.conversion, fontSize: typography.caption.fontSize, fontWeight: "700" },
   mapButton: {
     flexDirection: "row",
     alignItems: "center",

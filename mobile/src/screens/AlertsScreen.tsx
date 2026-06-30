@@ -11,7 +11,7 @@ import { DEFAULT_RADIUS_KM, getSavedLocation, SavedLocation } from "../utils/sav
 import { AlertCard } from "../components/AlertCard";
 import { AppHeader } from "../components/AppHeader";
 import { IncidentRow } from "../components/IncidentRow";
-import { StatCard } from "../components/StatCard";
+import { StatGroup } from "../components/StatGroup";
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
 import { FadeSlideIn } from "../components/FadeSlideIn";
 import { colors, spacing, tabBarClearance, typography } from "../theme";
@@ -82,12 +82,14 @@ export function AlertsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.primary} />}
       >
         <Text style={styles.sectionLabel}>In your area</Text>
-        <View style={styles.statsRow}>
-          <StatCard label="Crime" value={String(counts.crime)} valueColor={THEME.colors.primary} />
-          <StatCard label="Fire / Medical" value={String(counts.fire)} valueColor={colors.warning} />
-          <StatCard label="Traffic" value={String(counts.traffic)} valueColor={colors.accent} />
-          <StatCard label="Other" value={String(counts.other)} valueColor={THEME.colors.textSecondary} />
-        </View>
+        <StatGroup
+          items={[
+            { label: "Crime", value: String(counts.crime), color: THEME.colors.primary },
+            { label: "Fire / Medical", value: String(counts.fire), color: colors.warning },
+            { label: "Traffic", value: String(counts.traffic), color: colors.accent },
+            { label: "Other", value: String(counts.other), color: THEME.colors.textSecondary },
+          ]}
+        />
 
         <Text style={styles.sectionLabel}>Nearby incidents</Text>
         {nearby.length === 0 && !loading ? (
@@ -138,10 +140,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: spacing.sm,
     marginTop: spacing.lg,
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
   },
   empty: {
     color: THEME.colors.textSecondary,
