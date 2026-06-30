@@ -200,17 +200,18 @@ export function ProfileScreen() {
             </Text>
           </View>
 
+          <Text style={styles.statsCaption}>Your watched area, right now</Text>
           <View style={styles.statsRow}>
             <View style={styles.statCell}>
               <Text style={styles.statValue}>{zones.length}</Text>
-              <Text style={styles.statLabel}>Zones</Text>
+              <Text style={styles.statLabel}>Watched{"\n"}zones</Text>
             </View>
             <View style={styles.statSep} />
             <View style={styles.statCell}>
               <Text style={[styles.statValue, todayCount > 0 && { color: THEME.colors.danger }]}>
                 {todayCount}
               </Text>
-              <Text style={styles.statLabel}>Today</Text>
+              <Text style={styles.statLabel}>Incidents{"\n"}today</Text>
             </View>
             <View style={styles.statSep} />
             <View style={styles.statCell}>
@@ -222,7 +223,7 @@ export function ProfileScreen() {
               >
                 {cityAQ?.aqhi != null ? String(cityAQ.aqhi) : "—"}
               </Text>
-              <Text style={styles.statLabel}>AQHI</Text>
+              <Text style={styles.statLabel}>Air quality{"\n"}(AQHI)</Text>
             </View>
             <View style={styles.statSep} />
             <View style={styles.statCell}>
@@ -234,7 +235,7 @@ export function ProfileScreen() {
               >
                 {safetyIndex ? String(safetyIndex.score) : "—"}
               </Text>
-              <Text style={styles.statLabel}>Safety</Text>
+              <Text style={styles.statLabel}>Safety{"\n"}score /100</Text>
             </View>
           </View>
         </View>
@@ -493,6 +494,12 @@ const styles = StyleSheet.create({
   heroBadgeTextFree: {
     color: THEME.colors.textSecondary,
   },
+  statsCaption: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    alignSelf: "flex-start",
+    marginBottom: spacing.sm,
+  },
   statsRow: {
     flexDirection: "row",
     width: "100%",
@@ -518,6 +525,8 @@ const styles = StyleSheet.create({
     color: THEME.colors.textSecondary,
     fontSize: 11,
     marginTop: 2,
+    textAlign: "center",
+    lineHeight: 14,
   },
 
   // ── Section label ──

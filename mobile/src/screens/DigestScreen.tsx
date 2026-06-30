@@ -45,10 +45,11 @@ export function DigestScreen() {
       <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.statsWrap}>
         <StatGroup
+          caption="Edmonton incidents, last 7 days"
           items={[
-            { label: "Total Incidents", value: String(stats.total) },
-            { label: "Fires / Emergencies", value: String(stats.fires), color: colors.warning },
-            { label: "vs Last Week", value: changeLabel, color: changeColor },
+            { label: "Total incidents", value: String(stats.total) },
+            { label: "Fires / emergencies", value: String(stats.fires), color: colors.warning },
+            { label: "Change vs last week", value: changeLabel, color: changeColor },
           ]}
         />
       </View>

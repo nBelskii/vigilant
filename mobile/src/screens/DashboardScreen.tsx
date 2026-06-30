@@ -14,6 +14,7 @@ import { SafetyScoreBreakdownItem, SafetyScoreSheet } from "../components/Safety
 import { IncidentDetailSheet } from "../components/IncidentDetailSheet";
 import { ProfileTile } from "../components/ProfileTile";
 import { FadeSlideIn } from "../components/FadeSlideIn";
+import { CitySkyline } from "../components/CitySkyline";
 import { spacing, tabBarClearance, typography, radius, screenPadding } from "../theme";
 import { THEME } from "../theme/theme";
 
@@ -295,73 +296,75 @@ export function DashboardScreen() {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.primary} />}
       >
-        <Text style={styles.brand}>Safety Analytics Hub</Text>
+        {/* ── Hero spotlight card ── */}
+        <Pressable style={styles.heroCard} onPress={() => setScoreSheetOpen(true)}>
+          <View style={styles.heroSkyline} pointerEvents="none">
+            <CitySkyline city={profile.label} width={400} height={120} />
+          </View>
+          <View style={styles.heroContent}>
+            <View style={styles.heroTop}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.heroCaption}>{profile.province} · Pop. {profile.population}</Text>
+                <Text style={styles.heroCity}>{profile.label.split(",")[0]}</Text>
+              </View>
+              <View style={[styles.heroBadge, { backgroundColor: scoreColor(profile.safetyScore) }]}>
+                <Text style={styles.heroBadgeScore}>{profile.safetyScore}</Text>
+                <Text style={styles.heroBadgeUnit}>/100</Text>
+              </View>
+            </View>
+            <View style={styles.heroChips}>
+              <View style={styles.heroChip}>
+                <Ionicons name="alert-circle" size={13} color={THEME.colors.primary} />
+                <Text style={styles.heroChipText}>{activeAlertsCount} active alerts</Text>
+              </View>
+              {cityAirQuality && (
+                <View style={styles.heroChip}>
+                  <Ionicons name="leaf" size={13} color={aqhiColor(cityAirQuality.category)} />
+                  <Text style={styles.heroChipText}>Air: {cityAirQuality.category}</Text>
+                </View>
+              )}
+              <View style={[styles.heroChip, styles.heroChipRate]}>
+                <Text style={styles.heroRating}>{profile.safetyRating}</Text>
+              </View>
+            </View>
+          </View>
+        </Pressable>
 
-        {/* City carousel */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.cityCarousel}
-          contentContainerStyle={styles.cityCarouselContent}
-        >
+        {/* ── City grid ── */}
+        <Text style={styles.brand}>Explore cities</Text>
+        <View style={styles.cityGrid}>
           {CITY_OPTIONS.map((city) => {
-            const cityProfile = CITY_PROFILES[city];
+            const cp = CITY_PROFILES[city];
             const isActive = city === activeCity;
             return (
               <Pressable
                 key={city}
                 style={[styles.cityCard, isActive && styles.cityCardActive]}
-                onPress={() => {
-                  setActiveCity(city);
-                  setExpandedTrend(null);
-                }}
+                onPress={() => { setActiveCity(city); setExpandedTrend(null); }}
               >
-                <Text style={[styles.cityCardLabel, isActive && styles.cityCardLabelActive]} numberOfLines={1}>
-                  {cityProfile.label}
-                </Text>
-                <View style={styles.cityCardScoreRow}>
-                  <View style={[styles.cityCardDot, { backgroundColor: scoreColor(cityProfile.safetyScore) }]} />
-                  <Text style={styles.cityCardScore}>{cityProfile.safetyScore}/100</Text>
+                <View style={styles.cityCardSkyline} pointerEvents="none">
+                  <CitySkyline city={cp.label} width={160} height={80} />
                 </View>
-                {!cityProfile.available && (
-                  <View style={styles.cityCardSoonBadge}>
+                <View style={styles.cityCardBody}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cityCardLabel} numberOfLines={1}>{cp.label.split(",")[0]}</Text>
+                    <Text style={styles.cityCardProv}>{cp.province}</Text>
+                  </View>
+                  <View style={[styles.cityScoreBadge, { backgroundColor: scoreColor(cp.safetyScore) }]}>
+                    <Text style={styles.cityScoreText}>{cp.safetyScore}</Text>
+                  </View>
+                </View>
+                {!cp.available && (
+                  <View style={styles.cityCardSoon}>
                     <Text style={styles.cityCardSoonText}>Coming soon</Text>
                   </View>
+                )}
+                {isActive && (
+                  <View style={styles.cityCardActiveBar} />
                 )}
               </Pressable>
             );
           })}
-        </ScrollView>
-
-        {/* Safety score gauge */}
-        <View style={styles.card}>
-          <SafetyScoreGauge
-            score={profile.safetyScore}
-            rating={profile.safetyRating}
-            color={scoreColor(profile.safetyScore)}
-            onPress={() => setScoreSheetOpen(true)}
-          />
-
-          {/* Sub-header metadata row */}
-          <View style={styles.metaRow}>
-            <View style={styles.metaItem}>
-              <Ionicons name="people-outline" size={16} color={THEME.colors.textSecondary} />
-              <Text style={styles.metaText}>Population: {profile.population}</Text>
-            </View>
-            <View style={styles.metaItem}>
-              <Ionicons name="alert-circle-outline" size={16} color={THEME.colors.textSecondary} />
-              <Text style={styles.metaText}>Active Alerts: {activeAlertsCount}</Text>
-            </View>
-            {cityAirQuality && (
-              <View style={styles.metaItem}>
-                <Ionicons name="leaf-outline" size={16} color={aqhiColor(cityAirQuality.category)} />
-                <Text style={styles.metaText}>
-                  Air Quality: {cityAirQuality.category}
-                  {cityAirQuality.aqhi !== null ? ` (AQHI ${cityAirQuality.aqhi})` : ""}
-                </Text>
-              </View>
-            )}
-          </View>
         </View>
 
         {/* Daily safety tip */}
@@ -522,62 +525,144 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: spacing.sm,
   },
-  cityCarousel: {
-    marginHorizontal: -screenPadding,
+  // ── Hero spotlight card ──
+  heroCard: {
+    backgroundColor: THEME.colors.surface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+    overflow: "hidden",
+    marginBottom: spacing.lg,
   },
-  cityCarouselContent: {
-    paddingHorizontal: screenPadding,
+  heroSkyline: {
+    width: "100%",
+    height: 120,
+    overflow: "hidden",
+  },
+  heroContent: {
+    padding: spacing.md,
+  },
+  heroTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  heroCaption: {
+    color: THEME.colors.textSecondary,
+    fontSize: typography.caption.fontSize,
+    marginBottom: 2,
+  },
+  heroCity: {
+    color: THEME.colors.textPrimary,
+    fontSize: typography.title.fontSize,
+    fontWeight: typography.title.fontWeight,
+  },
+  heroBadge: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    marginLeft: spacing.sm,
+  },
+  heroBadgeScore: { color: "#FFFFFF", fontSize: 22, fontWeight: "800" },
+  heroBadgeUnit: { color: "#FFFFFF", fontSize: 11, marginLeft: 2, marginBottom: 2 },
+  heroChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
+  heroChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: THEME.colors.background,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: THEME.colors.border,
+  },
+  heroChipText: { color: THEME.colors.textSecondary, fontSize: typography.caption.fontSize },
+  heroChipRate: { backgroundColor: THEME.colors.secondary },
+  heroRating: { color: THEME.colors.textPrimary, fontSize: typography.caption.fontSize, fontWeight: "600" },
+
+  // ── City grid ──
+  cityGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   cityCard: {
-    width: 140,
+    width: "48%",
     backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: THEME.colors.border,
-    padding: spacing.md,
+    overflow: "hidden",
   },
   cityCardActive: {
     borderColor: THEME.colors.primary,
-    backgroundColor: THEME.colors.secondary,
+  },
+  cityCardSkyline: {
+    width: "100%",
+    height: 80,
+    overflow: "hidden",
+  },
+  cityCardBody: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: spacing.sm,
   },
   cityCardLabel: {
     color: THEME.colors.textPrimary,
     fontSize: typography.body.fontSize,
     fontWeight: "700",
-    marginBottom: spacing.xs,
   },
-  cityCardLabelActive: {
-    color: THEME.colors.textPrimary,
+  cityCardProv: {
+    color: THEME.colors.textSecondary,
+    fontSize: 11,
+    marginTop: 1,
   },
-  cityCardScoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  cityCardDot: {
-    width: 8,
-    height: 8,
+  cityScoreBadge: {
+    width: 34,
+    height: 34,
     borderRadius: radius.full,
-    marginRight: spacing.xs,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  cityCardScore: {
+  cityScoreText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  cityCardSoon: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(10,10,10,0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radius.lg,
+  },
+  cityCardSoonText: {
     color: THEME.colors.textSecondary,
     fontSize: typography.caption.fontSize,
     fontWeight: "700",
   },
-  cityCardSoonBadge: {
-    alignSelf: "flex-start",
-    marginTop: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: radius.full,
-    backgroundColor: THEME.colors.border,
+  cityCardActiveBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: THEME.colors.primary,
   },
-  cityCardSoonText: {
-    color: THEME.colors.textSecondary,
-    fontSize: typography.caption.fontSize - 2,
-    fontWeight: "700",
-  },
+
+  // ── Shared card ──
   card: {
     backgroundColor: THEME.colors.surface,
     borderRadius: radius.lg,

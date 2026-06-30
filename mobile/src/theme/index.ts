@@ -28,14 +28,15 @@ export const fontFamily = {
   bold: "InstrumentSans_700Bold",
 };
 
-// Extra bottom padding so scroll content clears the floating tab bar.
+// Extra bottom padding so scroll content clears the docked tab bar
+// (bar base ~54px + up to 44px safe-area inset on notched devices).
 export const tabBarClearance = 100;
 
-// Height of the floating CustomTabBar pill itself (paddingVertical * 2 + icon
-// size), excluding safe-area inset. Combine with useSafeAreaInsets().bottom
-// for an exact clearance value.
-export const tabBarHeight = 64;
-export const tabBarBottomMargin = 12;
+// Base height of the docked tab bar (icon + label + vertical padding),
+// excluding safe-area inset. Add useSafeAreaInsets().bottom for precise
+// positioning above the bar (e.g. the Map FAB).
+export const tabBarHeight = 54;
+export const tabBarBottomMargin = 0;
 
 export const typography = {
   display: { fontSize: moderateScale(30), fontWeight: "800" as const, fontFamily: fontFamily.bold },

@@ -83,6 +83,7 @@ export function AlertsScreen() {
       >
         <Text style={styles.sectionLabel}>In your area</Text>
         <StatGroup
+          caption={`Incidents reported within ${radiusKm.toFixed(1)} km, by type`}
           items={[
             { label: "Crime", value: String(counts.crime), color: THEME.colors.primary },
             { label: "Fire / Medical", value: String(counts.fire), color: colors.warning },
