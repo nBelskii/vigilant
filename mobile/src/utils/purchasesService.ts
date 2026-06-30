@@ -14,7 +14,7 @@ export function initializePurchases(): void {
   if (!apiKey) return; // No key — stay in local preview mode
 
   try {
-    if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+    if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
     Purchases.configure({ apiKey });
     initialized = true;
   } catch (e) {

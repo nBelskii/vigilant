@@ -27,6 +27,7 @@ import { THEME } from "../theme/theme";
 const EDMONTON_CENTER = { lat: 53.5461, lng: -113.4938 };
 
 const WALK_DURATIONS = [
+  { label: "Test (1s)", ms: 1 * 1000 },
   { label: "15 min", ms: 15 * 60 * 1000 },
   { label: "30 min", ms: 30 * 60 * 1000 },
   { label: "60 min", ms: 60 * 60 * 1000 },
